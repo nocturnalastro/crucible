@@ -1,0 +1,6 @@
+- name: Check root_path is defined
+  assert:
+    that:
+      - root_path is defined
+    fail_msg: root_path is required for all playbooks to function correctly
+  changed_when: False
