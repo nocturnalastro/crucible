@@ -5,12 +5,14 @@
         file: required_vars.yml
         apply:
           tags: validate_required_vars
+          delegate_to: bastion
       tags: validate_required_vars
 
     - include_tasks:
         file: cluster.yml
         apply:
           tags: validate_cluster
+          delegate_to: bastion
       tags: validate_cluster
 
     - include_tasks:
@@ -23,18 +25,21 @@
         file: prereqs.yml
         apply:
           tags: validate_prereqs
+          delegate_to: bastion
       tags: validate_prereqs
 
     - include_tasks:
         file: network.yml
         apply:
           tags: validate_network
+          delegate_to: bastion
       tags: validate_network
 
     - include_tasks:
         file: day2.yml
         apply:
           tags: validate_day2
+          delegate_to: bastion
       tags: validate_day2
 
   when: not (inventory_validated | default(False) | bool)
