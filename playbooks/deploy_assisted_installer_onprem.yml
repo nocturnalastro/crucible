@@ -5,13 +5,14 @@
     destination_hosts:
       - assisted_installer
   roles:
-    - get_image_hash
-
+    - role: get_image_hash
+      when: image_hashes | default({}) | length == 0
 
 - name: Deploy OpenShift Assisted Installer On Prem
   hosts: assisted_installer
   roles:
-    - setup_assisted_installer
+    - role: setup_assisted_installer
+      when: SETUP_ASSISTED_INSTALLER == True
   vars:
     PULL_SECRET: "{{ pull_secret }}"
     SETUP_ASSISTED_INSTALLER: "{{ setup_assisted_installer | default(True) }}"

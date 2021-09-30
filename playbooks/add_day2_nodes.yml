@@ -1,0 +1,5 @@
+- hosts: day2_workers
+  gather_facts: false
+  strategy: free
+  roles:
+    - add_day2_node
