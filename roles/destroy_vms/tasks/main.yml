@@ -1,10 +1,8 @@
 - name: Create inventory host to vm name mapper
   set_fact:
-    vm_to_inventory_mapper: "{{ (vm_to_inventory_mapper | default([])) | combine({
-      (item.startswith(cluster_name) | ternary(item, (cluster_name + '_' + item))): item
-    }) }}"
+    cluster_vm_names: "{{ (cluster_vm_names | default([])) + [item.startswith(cluster_name) | ternary(item, (cluster_name + '_' + item))] }}"
   loop: "{{ groups['masters'] + groups['workers'] | default([]) }}"
-  when: item in hostvars and hostvars[item]['vendor'] | lower == 'kvm'
+  when: hostvars[item]['vendor'] | lower == 'kvm'
 
 - debug:
     var: vm_to_inventory_mapper
@@ -28,9 +26,9 @@
 
     - name: Get filtered vm list
       set_fact:
-        vms_to_remove: "{{ [item] + vms_to_remove | default([]) }}"
+        vms_to_remove: "{{ (vms_to_remove | default([])) + [item] }}"
       loop: "{{ vms_list.list_vms }}"
-      when: vm_to_inventory_mapper[item] in hostvars and hostvars[vm_to_inventory_mapper[item]]['vendor'] | lower == 'kvm'
+      when: item in cluster_vm_names
 
 - debug:
     var: vms_to_remove
