@@ -12,9 +12,14 @@
   become: True
   when: required_binary_check.rc != 0
 
+- name: Set options
+  set_fact:
+    options: "{{ options | default('') }} @{{ dns_check_server }}"
+  when: dns_check_server is defined
+
 - name: Check required domain {item} exists
   ansible.builtin.shell:
-    cmd: "{{ required_binary }} {{ item }} +short"
+    cmd: "{{ required_binary }} {{options | default('')}} {{ item }} +short"
   register: res
   changed_when: false
   failed_when: res.stdout_lines | map('ipaddr') | reject('equalto', false) | list | length > 0
