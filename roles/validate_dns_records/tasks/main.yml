@@ -17,5 +17,5 @@
     cmd: "{{ required_binary }} {{ item }} +short"
   register: res
   changed_when: false
-  failed_when: res.stdout | ipaddr == false
+  failed_when: res.stdout_lines | map('ipaddr') | reject('equalto', false) | list | length > 0
   loop: "{{ required_domains }}"
