@@ -20,7 +20,8 @@
       register: vms_list
       become: true
 
-    - debug:
+    - name: VM list
+      debug:
         var: vms_list.list_vms
         verbosity: 1
 
@@ -30,13 +31,14 @@
       loop: "{{ vms_list.list_vms }}"
       when: item in cluster_vm_names
 
-- debug:
+- name: VMS to remove
+  debug:
     var: vms_to_remove
     verbosity: 1
 
 - name: Clean VM images
   import_tasks: clean_vm_images.yml
-  when: vms_to_remove is defined and vms_to_remove | bool
+  when: vms_to_remove is defined and vms_to_remove | length > 0
   become: true
 
 - name: Destroy vms

@@ -7,6 +7,10 @@
   loop_control:
     loop_var: vm_name
 
+- debug:
+    var: files_to_remove
+    verbosity: 1
+
 - name: Remove files
   file:
     path: "{{ item }}"
