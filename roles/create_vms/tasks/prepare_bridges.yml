@@ -31,18 +31,17 @@
         state: present
       when: vlan_tag is not defined
 
-    - name: Setup VLan tagged bridge slave
-      shell:
-        cmd: >
-          /usr/bin/nmcli \
-            connection add \
-            type vlan \
-            con-name {{ bridge_name }}.{{ vlan_tag }} \
-            ifname {{ bridge_name }}.{{ vlan_tag }} \
-            dev {{ vm_bridge_interface }} \
-            id {{ vlan_tag }} \
-            master {{ bridge_name }} \
-            slave-type bridge
+
+    - name: Create vlan bridge slave
+      nmcli_dev:
+        conn_name: "{{ bridge_name }}.{{ vlan_tag }}"
+        type: vlan-bridge-slave
+        vlandev: "{{ vm_bridge_interface }}"
+        vlanid: "{{ vlan_tag }}"
+        hairpin: no
+        master: "{{ bridge_name }}"
+        autoconnect: yes
+        state: present
       when: vlan_tag is defined
 
     - name: Bring up bridge slave
@@ -52,9 +51,9 @@
     - name: Bring up bridge slave
       shell:
         cmd: /usr/bin/nmcli con up {{ vm_bridge_interface }}_{{ bridge_name }}
-      when: vlan_tag is defined
+      when: vlan_tag is not defined
 
     - name: Bring up bridge vlan slave
       shell:
         cmd: /usr/bin/nmcli con up {{ bridge_name }}.{{ vlan_tag }}
-      when: vlan_tag is not defined
+      when: vlan_tag is defined
