@@ -115,7 +115,7 @@ all:
     ssh_public_key: "{{ lookup('file', local_ssh_public_key_path) }}"
 
     # provided mirror certificate logic, no need to change.
-    local_mirror_certificate_path: "{{ (setup_registry_service == true) | ternary(fetched_dest + '/domain.crt',  repo_root_path + '/mirror_certificate.txt') }}"
+    local_mirror_certificate_path: "{{ (setup_registry_service == true) | ternary(fetched_dest + '/registry.crt',  repo_root_path + '/mirror_certificate.txt') }}"
     mirror_certificate: "{{ lookup('file', local_mirror_certificate_path) }}"
 
     openshift_version: "{{ openshift_full_version.split('.')[:2] | join('.') }}"
@@ -163,7 +163,12 @@ all:
 
         dns_host:
           ansible_host: 10.40.0.100
-          # write_dnsmasq_config: true # Set to false if there is already dns setup
+          # The variables below are required if want to dhcp
+          # use_dhcp: true
+          # dhcp_range_first: 10.60.0.100
+          # dhcp_range_last: 10.60.0.200
+          # gateway: 10.60.0.1
+          # prefix: 24
 
         http_store:
           ansible_host: 10.40.0.100
@@ -188,44 +193,29 @@ all:
       # Node Required Vars:
       # - role
       #     - Must be either "master" or "worker", and must match the group
-
+      #
       # - mac
       #     - The MAC address of the node, used as a hardware identifier by Assisted Installer.
       #     - The value set here will be used when creating VMs and must be unique within the network.
-
+      #
       # - vendor
       #     - One of "Dell", "HPE", "Lenovo", "SuperMicro", "KVM" as the supported BMC APIs.
       #     - "KVM" identifies a node as a VM to be created. If a "KVM" node is present,
       #       then a "vm_host" must be defined in the "services" group.
-
+      #
       # - bmc_address
       # - bmc_user
       # - bmc_password
       #     - details for the BMC that controls the node.
       #     - Must be set to the vm_host for "KVM" nodes.
 
-      # Static IP Vars:
-      # - ip
-      #     - defaults to "dhcp"
-      #     - Either the static IP to be set for the node, or "dhcp"
-      #     - If a static IP is set then "mask", "gateway", "dns" MUST also be set for the node
-
-      # - dns
-      #     - IP of the DNS server to be configured for static IP
-
-      # - gateway
-      #     - IP of the gateway to be configured for static IP
-
-      # - mask
-      #     - Length of subnet mask (e.g. 24) to be configured for static IP
-
+      # Optional Vars:
       # - vm_spec
       #     - Specifications for the node:
       #          - cpu_cores
       #          - ram_mib
       #          - disk_size_gb
-
-      # Optional Vars:
+      #
       # - installation_disk_path
       #     - The value set here will be used by Assisted Installer as the installation disk device
       #       for a given host.

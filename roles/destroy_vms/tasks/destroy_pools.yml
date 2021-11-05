@@ -1,4 +1,3 @@
-
 - name: List vm storage pools
   community.libvirt.virt_pool:
     command: list_pools
@@ -18,7 +17,7 @@
     pool_info.results |
     map(attribute='pools') | list | combine |
     dict2items(key_name='name', value_name='data')
-  }}"
+    }}"
   when: item.data.path == images_dir
 
 - name: Find images

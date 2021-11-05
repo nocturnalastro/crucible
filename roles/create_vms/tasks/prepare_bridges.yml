@@ -31,7 +31,6 @@
         state: present
       when: vlan_tag is not defined
 
-
     - name: Create vlan bridge slave
       nmcli_dev:
         conn_name: "{{ bridge_name }}.{{ vlan_tag }}"

@@ -1,0 +1,9 @@
+vm_params:
+  master:
+    memory: "{{ vm_spec_master_memory | default(16384) }}"
+    vcpu: "{{ vm_spec_master_vcpu | default(6) }}"
+    disk_size: "{{ vm_spec_master_disk | default(30) }}"
+  worker:
+    memory: "{{ vm_spec_worker_memory | default(30000) }}"
+    vcpu: "{{ vm_spec_worker_vcpu | default(8) }}"
+    disk_size: "{{ vm_spec_worker_disk | default(50) }}"

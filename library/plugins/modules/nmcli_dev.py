@@ -1226,6 +1226,9 @@ class Nmcli(object):
             cmd = [to_text(item) for item in cmd]
         else:
             cmd = to_text(cmd)
+
+        self.command_ran = cmd
+
         return self.module.run_command(
             cmd, use_unsafe_shell=use_unsafe_shell, data=data
         )
@@ -2035,6 +2038,8 @@ def main():
         result["stdout"] = out
     if err:
         result["stderr"] = err
+
+    result["cmd"] = nmcli.command_ran
 
     module.exit_json(**result)
 

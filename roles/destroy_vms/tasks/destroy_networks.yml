@@ -23,3 +23,9 @@
   ignore_errors: yes
   become: true
   when: (SETUP_VM_BRIDGE | default(true)) | bool == true
+
+- name: Create vlan bridge slave
+  nmcli_dev:
+    conn_name: "{{ bridge_name }}.{{ vlan_tag }}"
+    state: absent
+  when: vlan_tag is defined and (SETUP_VM_BRIDGE | default(true)) | bool == true
