@@ -1,30 +1,104 @@
 ---
-- name: Discovery iDRAC versions for Dell hardware
-  containers.podman.podman_container:
-    name: "{{ hostvars[inventory_hostname]['bmc_address'] }}-rac-version"
-    network: host
-    image: quay.io/dphillip/racadm-image
-    state: started
-    detach: false
-    rm: true
-    command:
-      [
-        "-v",
-        "-r",
-        "{{ hostvars[inventory_hostname]['bmc_address'] }}",
-        "-u",
-        "{{ hostvars[inventory_hostname]['bmc_user'] }}",
-        "-p",
-        "{{ hostvars[inventory_hostname]['bmc_password'] }}",
-        "-i",
-        "{{ boot_iso_url }}",
-      ]
-  register: drac_version
+- name: DELL Power ON
+  community.general.redfish_command:
+    category: Systems
+    command: PowerOn
+    baseuri: "{{ hostvars[inventory_hostname]['bmc_address'] }}"
+    username: "{{ hostvars[inventory_hostname]['bmc_user'] }}"
+    password: "{{ hostvars[inventory_hostname]['bmc_password'] }}"
 
-- name: Using iDRAC ISO method for 13G and below
-  include_tasks: dell_idrac.yml
-  when: drac_version.stdout | int <= 13
+- block:
+    - name: Set Dell OneTimeBoot VirtualCD (VCD-DVD)
+      community.general.redfish_command:
+        category: Systems
+        command: SetOneTimeBoot
+        bootdevice: VCD-DVD
+        baseuri: "{{ hostvars[inventory_hostname]['bmc_address'] }}"
+        username: "{{ hostvars[inventory_hostname]['bmc_user'] }}"
+        password: "{{ hostvars[inventory_hostname]['bmc_password'] }}"
+  rescue:
+    - name: Set Dell OneTimeBoot VirtualCD (Cd)
+      community.general.redfish_command:
+        category: Systems
+        command: SetOneTimeBoot
+        bootdevice: Cd
+        baseuri: "{{ hostvars[inventory_hostname]['bmc_address'] }}"
+        username: "{{ hostvars[inventory_hostname]['bmc_user'] }}"
+        password: "{{ hostvars[inventory_hostname]['bmc_password'] }}"
 
-- name: Using iDRAC ISO method for 13G and below
-  include_tasks: dell_redfish.yml
-  when: drac_version.stdout | int > 13
+- block:
+    - name: DELL Eject Virtual Media (if any)
+      community.general.redfish_command:
+        category: Manager
+        command: VirtualMediaEject
+        baseuri: "{{ hostvars[inventory_hostname]['bmc_address'] }}"
+        username: "{{ hostvars[inventory_hostname]['bmc_user'] }}"
+        password: "{{ hostvars[inventory_hostname]['bmc_password'] }}"
+        virtual_media:
+          image_url: "{{ boot_iso_url }}"
+        resource_id: iDRAC.Embedded.1
+  rescue:
+    - name: Get Virtual Media information
+      community.general.redfish_info:
+        category: Manager
+        command: GetVirtualMedia
+        baseuri: "{{ hostvars[inventory_hostname]['bmc_address'] }}"
+        username: "{{ hostvars[inventory_hostname]['bmc_user'] }}"
+        password: "{{ hostvars[inventory_hostname]['bmc_password'] }}"
+      register: result
+
+    - name: Get blocking virtual_media
+      set_fact:
+        blocking_virtual_media:  "{{ result.redfish_facts.virtual_media.entries
+          | flatten(levels=2)
+          | selectattr('ConnectedVia', 'defined') | list
+          | json_query('[?(
+              ConnectedVia == `URI`
+              && Image != null
+              && (
+                contains(MediaTypes, `CD`)
+                || contains(MediaTypes, `DVD`)
+                || contains(MediaTypes, `VCD-DVD`)
+              )
+            )]'
+          ) | from_yaml
+        }}"
+
+    - debug: # noqa unnamed-task
+        var: blocking_virtual_media
+        verbosity: 1
+
+    - name: Attempting to eject blocking media
+      community.general.redfish_command:
+        category: Manager
+        command: VirtualMediaEject
+        baseuri: "{{ hostvars[inventory_hostname]['bmc_address'] }}"
+        username: "{{ hostvars[inventory_hostname]['bmc_user'] }}"
+        password: "{{ hostvars[inventory_hostname]['bmc_password'] }}"
+        virtual_media:
+          image_url: "{{ item.Image }}"
+        resource_id: iDRAC.Embedded.1
+      loop: "{{ blocking_virtual_media }}"
+      no_log: True
+
+- name: DELL Insert Virtual Media
+  community.general.redfish_command:
+    category: Manager
+    command: VirtualMediaInsert
+    baseuri: "{{ hostvars[inventory_hostname]['bmc_address'] }}"
+    username: "{{ hostvars[inventory_hostname]['bmc_user'] }}"
+    password: "{{ hostvars[inventory_hostname]['bmc_password'] }}"
+    virtual_media:
+      image_url: '{{ boot_iso_url }}'
+      media_types:
+        - CD
+        - DVD
+    resource_id: iDRAC.Embedded.1
+
+- name: DELL Restart system power gracefully
+  community.general.redfish_command:
+    category: Systems
+    command: PowerGracefulRestart
+    baseuri: "{{ hostvars[inventory_hostname]['bmc_address'] }}"
+    username: "{{ hostvars[inventory_hostname]['bmc_user'] }}"
+    password: "{{ hostvars[inventory_hostname]['bmc_password'] }}"
