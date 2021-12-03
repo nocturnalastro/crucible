@@ -245,7 +245,7 @@ all:
             vm_host: vm_host1
             vm_spec:
               cpu_cores: 4
-              ram_mib: 6144
+              ram_mib: 16384
               disk_size_gb: 20
           hosts:
             super1:

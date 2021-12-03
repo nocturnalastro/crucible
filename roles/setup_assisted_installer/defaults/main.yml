@@ -71,12 +71,12 @@ assisted_installer_hardware_validation:
   - version: default
     master:
       cpu_cores: 4
-      ram_mib: 6144
+      ram_mib: 16384
       disk_size_gb: 20
       installation_disk_speed_threshold_ms: 10
     worker:
       cpu_cores: 4
-      ram_mib: 4096
+      ram_mib: 8192
       disk_size_gb: 20
       installation_disk_speed_threshold_ms: 10
     sno:

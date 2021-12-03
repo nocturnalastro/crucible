@@ -57,7 +57,7 @@ The specs of VMs created by the playbooks are configured for every node group.
 ```yaml
 vm_spec:
   cpu_cores: 4
-  ram_mib: 6144
+  ram_mib: 16384
   disk_size_gb: 20
 ```
 
