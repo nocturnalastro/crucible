@@ -1,6 +1,6 @@
 - name: Create day 2 cluster
   uri:
-    url: "{{ ASSISTED_INSTALLER_BASE_URL }}/add_hosts_clusters"
+    url: "{{ ASSISTED_INSTALLER_BASE_URL }}/clusters/import"
     method: POST
     url_username: "{{ HTTP_AUTH_USERNAME }}"
     url_password: "{{ HTTP_AUTH_PASSWORD }}"
@@ -9,11 +9,19 @@
     return_content: True
     body: >-
       {
-        "id": "{{ lookup('password', '/dev/null') | to_uuid }}",
         "name": "{{ cluster_name + '-day2' }}",
         "api_vip_dnsname": "{{ 'api.' + cluster_name + '.' + base_dns_domain }}",
+        "openshift_cluster_id": "{{ cluster_id }}",
         "openshift_version": "{{ openshift_full_version }}"
       }
+    # body: >-
+    #   {
+    #     "id": "{{ lookup('password', '/dev/null') | to_uuid }}",
+    #     "name": "{{ cluster_name + '-day2' }}",
+    #     "api_vip_dnsname": "{{ 'api.' + cluster_name + '.' + base_dns_domain }}",
+    #     "openshift_version": "{{ openshift_full_version }}"
+    #     "openshift_cluster_id": "{{ cluster_id }}"
+    #   }
   register: http_reply
 
 - debug: # noqa unnamed-task

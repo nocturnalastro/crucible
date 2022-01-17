@@ -32,9 +32,9 @@
 
 - name: Identify the host {{ host.id }} interfaces
   set_fact:
-   host_interfaces: "{{ host_inventory.interfaces }}"
+    host_interfaces: "{{ host_inventory.interfaces }}"
 
-- name : Set host name and role for {{ host.id }}
+- name: Set host name and role for {{ host.id }}
   set_fact:
     host_name: "{{ item.0 }}"
     host_role: "{{ hostvars[item.0]['role'] }}"
@@ -42,7 +42,7 @@
   loop: "{{ inventory_nodes | product(host_interfaces) | list }}"
   no_log: True
 
-- name : Prepare hosts name and role for {{ host_name }}
+- name: Prepare hosts name and role for {{ host_name }}
   set_fact:
     host:
       id: "{{ host_id }}"
@@ -50,9 +50,24 @@
       role: "{{ host_role }}"
   when: host_name is defined or host_role is defined
 
+# - name: Set host name and role for {{ host_name }}
+#   uri:
+#     url: "{{ URL_ASSISTED_INSTALLER_CLUSTER }}"
+#     method: PATCH
+#     url_username: "{{ HTTP_AUTH_USERNAME }}"
+#     url_password: "{{ HTTP_AUTH_PASSWORD }}"
+#     body_format: json
+#     status_code: [201]
+#     return_content: True
+#     body: {
+#         "hosts_names": [ "{{ host }}" ],
+#         "hosts_roles": [ "{{ host }}" ]
+#     }
+#   register: http_reply
+
 - name: Set host name and role for {{ host_name }}
   uri:
-    url: "{{ URL_ASSISTED_INSTALLER_CLUSTER }}"
+    url: "{{ ASSISTED_INSTALLER_BASE_URL }}/infra-envs/{{ infra_env_id }}/hosts/{{ host.id }}"
     method: PATCH
     url_username: "{{ HTTP_AUTH_USERNAME }}"
     url_password: "{{ HTTP_AUTH_PASSWORD }}"
@@ -60,10 +75,9 @@
     status_code: [201]
     return_content: True
     body: {
-        "hosts_names": [ "{{ host }}" ],
-        "hosts_roles": [ "{{ host }}" ]
-    }
-  # Role can't be changed for SNO hosts
+        "role": "{{ host.role }}",
+        "host_name": "{{ host.hostname }}",
+      }
   when: not single_node_openshift_enabled
   register: http_reply
 
@@ -109,7 +123,6 @@
         var: worker_partition
         verbosity: 1
   
-  
     - name: Patch worker partition
       uri:
         url: "{{ URL_ASSISTED_INSTALLER_CLUSTER }}/hosts/{{ host_id }}/ignition"
@@ -117,10 +130,7 @@
         status_code: [201]
         return_content: True
         body_format: json
-        body:
-          {
-        "config": "{{ worker_partition | to_json(ensure_ascii=False) | string }}",
-          }
+        body: { "config": "{{ worker_partition | to_json(ensure_ascii=False) | string }}" }
       register: http_reply
    
     - debug: # noqa unnamed-task
