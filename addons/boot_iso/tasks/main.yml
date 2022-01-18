@@ -1,0 +1,6 @@
+- debug: 
+    msg: "Im overwritten {{ inventory_hostname }}"
+
+
+- ansible.builtin.import_role:
+    name: crucible_boot_iso
