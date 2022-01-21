@@ -1,0 +1,26 @@
+---
+
+# This is so that configure_vm_host_network can be run in isolation or as part of create_vms
+- name: Process KVM nodes
+  hosts: bastion
+  tasks:
+      # Note: using set_fact instead of vars here to force evaluation of the value 
+      # as lazy evaluation will cause tasks to no run as the first set of the role
+      # is to define the all_kvm_nodes value which causes all following tasks to be skipped
+    - name: Set if process_kvm_nodes should be ran
+      set_fact: 
+        PROCESS_KVM_NODES: "{{ (setup_vms | default(true)) and (all_kvm_nodes is undefined) }}"
+    - name: Run process_kvm_nodes
+      include_role: # Using include_role to limit how messy the logs become when skipping
+        name: process_kvm_nodes
+      when: PROCESS_KVM_NODES | bool
+
+
+- name: Configure VM Host's network
+  hosts: vm_hosts
+  vars:
+    SETUP_VMS: "{{ setup_vms | default((kvm_nodes | default([])) | length | int >= 1) }}"
+    SETUP_VM_HOST_NETWORK: "{{ setup_vm_host_network | default(True) }}"
+  roles:
+    - role: setup_vm_host_network
+      when: (SETUP_VM_HOST_NETWORK |  default(SETUP_VMS)) | bool

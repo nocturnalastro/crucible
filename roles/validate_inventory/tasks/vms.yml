@@ -6,16 +6,6 @@
   when: hostvars[item]['vendor'] | lower == 'kvm'
   loop: "{{ groups['nodes'] }}"
 
-- name: Check there is no vm_host in services
-  assert:
-    that:
-      - ('vm_host' not in groups['services'])
-    fail_msg: >
-      The structure of the inventory has changed
-      please put vm_host into a group called vm_hosts
-      and add a vm_host entry to the KVM node to point
-      to the host of the vm.
-
 - name: Check that a host is defined in the 'vm_hosts' group if needed
   assert:
     that:

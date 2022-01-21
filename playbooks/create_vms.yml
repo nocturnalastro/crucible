@@ -6,7 +6,7 @@
     - role: process_kvm_nodes
       when: (setup_vms | default(true))
 
-- name: Provision VMS
+- name: Destroy VMS
   hosts: vm_hosts
   vars:
     SETUP_VMS: "{{ setup_vms | default((kvm_nodes | default([])) | length | int >= 1) }}"
@@ -16,9 +16,13 @@
       tags:
         - destroy_vms
 
-    - role: setup_vm_host_network
-      when: (SETUP_VM_BRIDGE | default(SETUP_VMS)) | bool
+- import_playbook: configure_vm_host_network.yml
 
+- name: Provision VMS
+  hosts: vm_hosts
+  vars:
+    SETUP_VMS: "{{ setup_vms | default((kvm_nodes | default([])) | length | int >= 1) }}"
+  roles:
     - role: create_vms
       when: SETUP_VMS | bool
       tags:

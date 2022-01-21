@@ -48,6 +48,13 @@
         apply:
           tags: validate_day2
       tags: validate_day2
+    
+    - include_tasks:
+        file: inventory_changes.yml
+        apply:
+          tags: validate_inventory_changes_vars
+      tags: validate_inventory_changes_vars
+
 
   when: not (inventory_validated | default(False) | bool)
   delegate_to: "{{ validation_host | default('bastion') }}"

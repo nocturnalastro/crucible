@@ -1,0 +1,15 @@
+- name: Check for SETUP_VM_BRIDGE
+  assert: 
+    that:
+      - SETUP_VM_BRIDGE is not defined
+    fail_msg: "'SETUP_VM_BRIDGE' has been renamed to 'setup_vm_host_network' instead"
+
+- name: Check there is no vm_host in services
+  assert:
+    that:
+      - ('vm_host' not in groups['services'])
+    fail_msg: >
+      The structure of the inventory has changed
+      please put vm_host into a group called vm_hosts
+      and add a vm_host entry to the KVM node to point
+      to the host of the vm.
