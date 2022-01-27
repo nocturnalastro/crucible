@@ -4,10 +4,6 @@
   loop: "{{ groups['nodes'] }}"
   when: hostvars[item]['vendor'] | lower == 'kvm'
 
-- debug: # noqa unnamed-task
-    var: vm_to_inventory_mapper
-    verbosity: 1
-
 - name: Setup host environment
   become: true
   block:
