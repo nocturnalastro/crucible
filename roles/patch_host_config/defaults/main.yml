@@ -1,2 +1,8 @@
 ASSISTED_INSTALLER_BASE_URL: "{{ secure | ternary('https', 'http') }}://{{ hostvars['assisted_installer']['host'] }}:{{ hostvars['assisted_installer']['port'] }}/api/assisted-install/v1"
 URL_ASSISTED_INSTALLER_CLUSTER: "{{ ASSISTED_INSTALLER_BASE_URL }}/clusters/{{ cluster_id }}"
+
+disks_rhcos_root: # Required rhcos_partion
+  label: root
+  number: 4
+  resize: true
+  sizeMiB: 102400
