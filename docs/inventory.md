@@ -407,7 +407,7 @@ The basic network configuration of the inventory for the fully bare metal deploy
 ```
 ## Additional Partition Deployment
 
-Uncomment the lines below to set additional partitions if required. Please provide the correct label and size(MiB)
+Uncomment the lines below in the inventory.yml to set additional partitions if required on the nodes. Please provide the correct label and size(MiB).
 Add all additional paritions required under extra_partitions (examples for label:size provided below).
 Additional partitions can only be created for OCP 4.8+ deployments
 
