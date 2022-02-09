@@ -405,6 +405,20 @@ The basic network configuration of the inventory for the fully bare metal deploy
           bmc_address: 172.30.10.7
           # ...
 ```
+## Additional Partition Deployment
+
+Uncomment the lines below to set additional partitions if required. Please provide the correct label and size(MiB)
+Add all additional paritions required under extra_partitions (examples for label:size provided below).
+Additional partitions can only be created for OCP 4.8+ deployments
+
+```yaml
+# ...
+disks:
+  - device: "{{ installation_path }}" #DO NOT CHANGE
+    extra_partitions:
+      partition_1: 1024
+      partition_2: 1024
+ ```     
 
 > **Note**: that the BMCs of the nodes in the cluster must be routable from the bastion host and the HTTP Store must be routable from the BMCs
 
