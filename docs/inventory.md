@@ -408,13 +408,14 @@ The basic network configuration of the inventory for the fully bare metal deploy
 ## Additional Partition Deployment
 
 Uncomment the lines below in the inventory.yml to set additional partitions if required on the nodes. Please provide the correct label and size(MiB).
+The device can either be the drive in which RHCOS image needs to be installed or it can be any additional drive that requires new partitions.
 Add all additional paritions required under extra_partitions (examples for label:size provided below).
 Additional partitions can only be created for OCP 4.8+ deployments
 
 ```yaml
 # ...
 disks:
-  - device: "{{ installation_path }}" #DO NOT CHANGE
+  - device: "{{ installation_disk_path }}" #See above section
     extra_partitions:
       partition_1: 1024
       partition_2: 1024
