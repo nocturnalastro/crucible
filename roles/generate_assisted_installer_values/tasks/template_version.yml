@@ -1,0 +1,45 @@
+- debug:
+    msg: "{{ version | regex_search(all_form_regex) }}"
+
+
+- name: Fail if not of the correct value
+  ansible.builtin.fail:
+    msg: "Version must have be of the form X.Y, X.Y.Z or X.Y.Z-rcA.B"
+  when: version | regex_search(long_form_regex) == ''
+
+- name: Set value foor ocp_long_version from  long version
+  ansible.builtin.set_fact:
+    ocp_long_version:  "{{ version | string }}"
+  when: version | regex_search('^(\d+\.\d+\.\d+(?:-rc(?:\d+)?(?:\.\d)*)?)$') != ''
+
+- name: Set value foor ocp_long_version from short version
+  ansible.builtin.set_fact:
+    ocp_long_version:  "{{ ocp_defaults[version | string] | string }}"
+  when: version.split('.') | length == 2
+
+- name: Set value for ocp_short_version
+  ansible.builtin.set_fact:
+    ocp_short_version: "{{ ocp_long_version.split('.')[:2] | join('.') | string }}"
+
+- name: Set value foor rchos_version
+  ansible.builtin.set_fact:
+    rchos_version: "{{ rchos_versions[ocp_os_image_mapping[arch][ocp_long_version]] }}"
+
+- ansible.builtin.set_fact:
+    os_image: 
+        openshift_version: "{{ ocp_short_version }}"
+        cpu_architecture: "{{ arch }}"
+        url: "{{ iso_urls[arch].live }}"
+        rootfs_url: "{{ iso_urls[arch].rootfs }}"
+        version: "{{ rchos_version }}"
+
+    release_image:
+        openshift_version: "{{ ocp_short_version }}"
+        cpu_architecture: "{{ arch }}"
+        url: "quay.io/openshift-release-dev/ocp-release{% if ('release_' + ocp_short_version) in image_hashes %}@{{ image_hashes[('release_' + ocp_short_version)] }}{% else %}:{{ocp_long_version}}-{{arch}}{% endif %}"
+        version: "{{ ocp_long_version }}"
+
+- debug:  
+    var: os_image
+- debug:  
+    var: release_image

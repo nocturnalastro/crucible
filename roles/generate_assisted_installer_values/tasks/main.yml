@@ -1,0 +1,19 @@
+- name: Set version to template
+  ansible.builtin.set_fact:
+    versions: "{{ [openshift_version] }}"
+  when: not (all_versions | bool)
+
+
+- name: Set version to template
+  ansible.builtin.set_fact:
+    versions: "{{ ocp_os_image_mapping[arch].keys() | list  }}"
+  when: (all_versions | bool)
+  
+- debug:
+    var: versions
+
+- name: Loop over version
+  ansible.builtin.include_tasks: template_version.yml
+  loop: "{{ versions }}"
+  loop_control:
+    loop_var: version

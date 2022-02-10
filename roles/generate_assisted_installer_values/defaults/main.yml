@@ -1,0 +1,43 @@
+arch: x86_64
+
+rchos_versions:
+  "4.6.8": "46.82.202012051820-0"
+  "4.7.33": "47.84.202109241831-0"
+  "4.8.14": "48.84.202109241901-0"
+  "4.9.0": "49.84.202110081407-0"
+  "4.10.0-rc.0": "410.84.202202012119-0"
+
+ocp_defaults:
+  "4.6": "4.6.16"
+  "4.7": "4.7.42"
+  "4.8": "4.8.29"
+  "4.9": " 4.9.0"
+  "4.10": "4.10.0-rc.0"
+
+ocp_os_image_mapping:
+  x86_64:
+    "4.6.16": "4.6.8"
+    "4.7.33": "4.7.33"
+    "4.7.42": "4.7.33"
+    "4.8.14": "4.8.14"
+    "4.8.28": "4.8.14"
+    "4.8.29": "4.8.14"
+    "4.9.0":  "4.9.0"
+    "4.10.0-rc.0": "4.10.0-rc.0"
+
+is_prerelease: "{{ '-' in ocp_long_version }}"
+
+iso_urls:
+  x86_64:
+    live: "https://mirror.openshift.com/pub/openshift-v4/dependencies/rhcos/{{ is_prerelease | ternary('pre-release/' + ocp_long_version, ocp_short_version + '/' + ocp_long_version) }}/rhcos-{{ ocp_long_version }}-x86_64-live.x86_64.iso"
+    rootfs: "https://mirror.openshift.com/pub/openshift-v4/dependencies/rhcos/{{ is_prerelease | ternary('pre-release/' + ocp_long_version, ocp_short_version + '/' + ocp_long_version) }}/rhcos-live-rootfs.x86_64.img"
+  # arm64:
+  #   live: "https://mirror.openshift.com/pub/openshift-v4/aarch64/dependencies/rhcos/{{ ocp_short_version }}/{{ ocp_long_version }}/rhcos-{{ ocp_long_version }}-aarch64-live.aarch64.iso"
+  #   rootfs: "https://mirror.openshift.com/pub/openshift-v4/aarch64/dependencies/rhcos/{{ ocp_short_version }}/{{ ocp_long_version }}/rhcos-{{ ocp_long_version }}-aarch64-live-rootfs.aarch64.img"
+ 
+
+all_versions: false
+image_hashes: {}
+
+all_form_regex:  '^(\\d+\\.\\d+(?:\\.\\d+)?(?:-[r|f]c(?:\\.\\d)*)?)$'
+long_form_regex: '^(\\d+\\.\\d+\\.\\d+(?:-[r|f]c(?:\\.\\d)*)?)$'
