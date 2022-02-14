@@ -6,3 +6,5 @@ disks_rhcos_root: # Required rhcos_partion
   number: 4
   resize: true
   sizeMiB: 102400
+single_node_openshift_enabled: "{{ is_valid_single_node_openshift_config | default(false) }}"
+

@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 #jinja2:trim_blocks: True, lstrip_blocks: True
 {
   "ignition": {
@@ -25,4 +26,76 @@
       {% endfor %}
     ]
   }
+=======
+{
+	"ignition": {
+		"version": "3.2.0"
+	            },
+	"storage": {
+		"disks": [
+			{
+				"device": "/dev/nvme0n1",
+				"partitions": [{
+					"label": "root",
+					"number": 4,
+                                        "resize": true,
+					"sizeMiB": 102400
+				               },
+                                              {
+                                        "label":"lso_1G_5",
+                                        "sizeMiB":1024
+                                              },
+                                              {
+                                        "label":"lso_1G_6",
+                                        "sizeMiB":1024
+                                              },
+                                              {
+                                        "label":"lso_1G_7",
+                                        "sizeMiB":1024
+                                              },
+                                              {
+                                        "label":"lso_1G_8",
+                                        "sizeMiB":1024
+                                              },
+                                              {
+                                        "label":"lso_1G_9",
+                                        "sizeMiB":1024
+                                              },
+                                             {
+                                        "label":"lso_1G_10",
+                                        "sizeMiB":1024
+                                              },
+                                              {
+                                        "label":"lso_1G_11",
+                                        "sizeMiB":1024
+                                              },
+                                              {
+                                        "label":"lso_1G_12",
+                                        "sizeMiB":1024
+                                              },
+                                              {
+                                        "label":"lso_1G_13",
+                                        "sizeMiB":1024
+                                              },
+                                              {
+                                        "label":"lso_1G_14",
+                                        "sizeMiB":1024
+                                              },
+                                              {
+                                        "label":"lso_1G_15",
+                                        "sizeMiB":1024
+                                              },
+                                              {
+                                        "label":"lso_1G_16",
+                                        "sizeMiB":1024
+                                              }],
+				       "wipeTable": false
+                        }                      
+		        ]        
+				               
+					
+	              
+	              
+                   }       
+>>>>>>> origin/main
 }
