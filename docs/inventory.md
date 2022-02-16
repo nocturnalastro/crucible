@@ -419,7 +419,7 @@ The basic network configuration of the inventory for the fully bare metal deploy
 ```
 ## Additional Partition Deployment
 
-You can also set additional partitions if required on the nodes. You do this by adding the snippet below to the node defination. Please ensure you provide the correct label and size(MiB) for the additional partitions you want to create. The device can either be the drive in which RHCOS image needs to be installed or it can be any additional drive on the node that requires partitioning. All additional paritions must be added under extra_partitions key as per the example below. In the case that the device is equal to the `installation_disk_path` then an additional partition will be added defined by `disks_rhcos_root`. Lastly, Additional partitions can only be created for OCP 4.8+ deployments.
+For OCP 4.8+ deployments you can set partitions if required on the nodes. You do this by adding the snippet below to the node defination. Please ensure you provide the correct label and size(MiB) for the additional partitions you want to create. The device can either be the drive in which RHCOS image needs to be installed or it can be any additional drive on the node that requires partitioning. In the case that the device is equal to the host's `installation_disk_path` then a partition will be added defined by `disks_rhcos_root`. All additional partitions must be added under `extra_partitions` key as per the example below. Lastly, Additional partitions can only be created.
 
 ```yaml
 disks:
