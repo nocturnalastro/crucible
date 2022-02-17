@@ -297,7 +297,7 @@ all:
               # # Add all additional paritions required under extra_partitions (examples for label:size provided below).
               # # Additional partitions can only be created for OCP 4.8+ deployments
               # disks:
-              # - device: "{{ installation_path }}" #See above section
+              # - device: "{{ installation_disk_path }}" #See above section
               #   extra_partitions:
               #     partition_1: 1024
               #     partition_2: 102
@@ -315,7 +315,7 @@ all:
               # # Add all additional paritions required under extra_partitions (examples for label:size provided below).
               # # Additional partitions can only be created for OCP 4.8+ deployments
               # disks:
-              # - device: "{{ installation_path }}" #See above section
+              # - device: "{{ installation_disk_path }}" #See above section
               #   extra_partitions:
               #     partition_1: 1024
               #     partition_2: 1024
