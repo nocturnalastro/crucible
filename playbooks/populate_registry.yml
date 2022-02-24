@@ -1,0 +1,14 @@
+---
+- name: Play populate mirror registry
+  hosts: registry_host
+  vars:
+    SETUP_REGISTRY_SERVICE: "{{ setup_registry_service | default(True)}}"
+  roles:
+    - role: populate_mirror_registry
+      when: SETUP_REGISTRY_SERVICE == True
+  collections:
+    - containers.podman
+    - community.crypto
+    - community.general
+    - ansible.posix
+

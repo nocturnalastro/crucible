@@ -159,6 +159,13 @@ all:
           cert_organizational_unit: Lab
           cert_state: NC
 
+          # If you wish for crucible to mirror a filtered operator catalog
+          # then uncomment the line blow. This will add a signifcant amount of time to the execution time.
+          # populate_operator_catalog: True
+          # You can run the playbooks/populate_registry.yml stand alone but you will need 
+          # to set populate_operator_catalog to True. 
+          # You can also set mirror_packages to modify the default set.
+
           # Configure the following secret values in the inventory.vault.yml file
           REGISTRY_HTTP_SECRET: "{{ VAULT_REGISTRY_HOST_REGISTRY_HTTP_SECRET | mandatory }}"
           disconnected_registry_user: "{{ VAULT_REGISTRY_HOST_DISCONNECTED_REGISTRY_USER | mandatory }}"

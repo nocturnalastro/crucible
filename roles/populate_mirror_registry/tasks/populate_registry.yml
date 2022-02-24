@@ -35,7 +35,17 @@
           --from="{{ release_image_item.remote | quote }}"
           --to-release-image="{{ release_image_item.local | quote }}:{{ release_image_item.local_tag | quote }}"
           --to="{{ release_image_item.local | quote }}"
+  become: true
+  tags:
+    - mirror_images
 
+---
+- name: Populate Mirror
+  become: true
+  tags:
+    - mirror_images
+  when: populate_operator_catalog | bool
+  block:
     - name: Build pruned OLM index
       command: >
         opm index prune --from-index "{{ olm_index_item.remote }}"
@@ -49,6 +59,10 @@
         podman push --tls-verify=false
         {{ olm_index_item.local }}:{{ olm_index_item.local_tag }}
         --authfile "{{ config_file_path }}/{{ pull_secret_file_name }}"
-  become: true
-  tags:
-    - mirror_images
+
+    - name: Mirror Catalog to local registry 
+      command: >
+        oc adm catalog mirror \
+          {{ olm_index_item.local }}:{{ olm_index_item.local_tag }} \
+          {{ olm_item.local }}:{{ olm_item.local_tag }}
+  

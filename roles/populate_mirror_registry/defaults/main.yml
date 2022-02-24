@@ -48,6 +48,7 @@ ocpmetal_images:
   - "{{ installer_image }}"
   - "{{ installer_controller_image }}"
 
+populate_operator_catalog: false
 mirror_packages:
   - advanced-cluster-management
   - cluster-logging
