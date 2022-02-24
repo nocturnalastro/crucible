@@ -10,7 +10,7 @@
         "device": "{{ disk.device }}",
         "partitions": [ 
           {% set partitions = ((disk.extra_partitions | default({})).items() | list) %}
-          {% if disk.device == (installation_disk_path | default(host.json.installation_path)) %}
+          {% if disk.device == (installation_disk_path | default(host.json.installation_disk_path)) %}
           {{ (disks_rhcos_root | tojson) + (((partitions | length) > 0) | ternary(',','')) }}
           {% endif %}
           {% for label, size in partitions %}
