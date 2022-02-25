@@ -112,7 +112,7 @@
   
     - name: Patch worker partition
       uri:
-        url: "{{ URL_ASSISTED_INSTALLER_CLUSTER }}/hosts/{{host_id}}/ignition"
+        url: "{{ URL_ASSISTED_INSTALLER_CLUSTER }}/hosts/{{ host_id }}/ignition"
         method: PATCH
         status_code: [201]
         return_content: True
