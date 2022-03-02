@@ -292,16 +292,6 @@ all:
               # # Uncomment to set an alternate installation disk device for the node
               # installation_disk_path: /dev/sdb
               
-              # # Uncomment to set additional partitions if required on nodes. Please provide the correct label and size(MiB).
-              # # The device can either be the drive in which RHCOS image needs to be installed or it can be any additional drive that requires new partitions.
-              # # Add all additional paritions required under extra_partitions (examples for label:size provided below).
-              # # Additional partitions can only be created for OCP 4.8+ deployments
-              # disks:
-              # - device: "{{ installation_disk_path }}" #See above section
-              #   extra_partitions:
-              #     partition_1: 1024
-              #     partition_2: 102
-              
             worker2:
               ansible_host: 10.60.0.105
               bmc_address: 172.28.11.26
@@ -309,14 +299,5 @@ all:
 
               # # Uncomment to set an alternate installation disk device for the node
               # installation_disk_path: /dev/sdb
-              
-              # # Uncomment to set additional partitions if required on nodes. Please provide the correct label and size(MiB).
-              # # The device can either be the drive in which RHCOS image needs to be installed or it can be any additional drive that requires new partitions.
-              # # Add all additional paritions required under extra_partitions (examples for label:size provided below).
-              # # Additional partitions can only be created for OCP 4.8+ deployments
-              # disks:
-              # - device: "{{ installation_disk_path }}" #See above section
-              #   extra_partitions:
-              #     partition_1: 1024
-              #     partition_2: 1024
+             
            
