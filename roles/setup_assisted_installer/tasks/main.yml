@@ -55,6 +55,17 @@
         - src: pod.yml.j2
           dest: "{{ assisted_installer_dir }}/pod.yml"
 
+    - name: Gather info about specific pods
+      containers.podman.podman_pod_info:
+        name: assisted-installer
+      register: ai_pod_details
+    
+    - name: Remove Assisted Installer Pod
+      containers.podman.podman_pod:
+        name: assisted-installer
+        state: absent
+      when: (ai_pod_details.pods | length) > 0 
+    
     - name: Play kube file
       containers.podman.podman_play:
         kube_file: "{{ assisted_installer_dir }}/pod.yml"
@@ -71,7 +82,7 @@
           [Unit]
           Description=Podman assisted_installer.service
           [Service]
-          Restart=on-failure
+          Restart=no
           ExecStart=/usr/bin/podman pod start assisted-installer
           ExecStop=/usr/bin/podman pod stop -t 10 assisted-installer
           KillMode=none

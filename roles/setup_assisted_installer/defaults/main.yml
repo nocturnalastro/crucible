@@ -119,5 +119,5 @@ assisted_installer_hardware_validation:
     installation_disk_speed_threshold_ms: 10
 
 dns_servers: "{% if dns is defined %}[dns]{% else %}[]{% endif %}"
-assisted_service_host: "{{ host | default('ansible_fqdn') }}"
-image_service_host: "{{ host | default('ansible_fqdn') }}"
+assisted_service_host: "{{ host | default('/opt/assisted-installer/data/postgresql/') }}" # nodes -> assisted service
+image_service_host: "{{ host | default('ansible_fqdn') }}" # bastion -> image service

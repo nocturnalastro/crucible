@@ -13,6 +13,9 @@ spec:
       envFrom:
       - configMapRef:
           name: config
+      volumeMounts:
+        - mountPath: "/var/lib/pgsql:z"
+          name: db-volume
     - image: "{{ assisted_service_gui_image }}"
       name: ui
       ports:
@@ -34,7 +37,12 @@ spec:
       envFrom:
       - configMapRef:
           name: config
-  restartPolicy: Never
+  volumes:
+    - name: db-volume
+      hostPath:
+        path:  "{{ assisted_installer_dir }}/data/postgresql"
+        type: Directory
+  restartPolicy: OnFailure
   {% if (dns_servers | length) > 0 %}
   dnsConfig:
     nameservers:

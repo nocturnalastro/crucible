@@ -39,6 +39,12 @@
   when: create | bool == True
   register: http_reply
 
+## Add stuff for 
+# "network_type":
+# "schedulable_masters":
+# "disk_encryption"???
+
+
 - debug: # noqa unnamed-task
     var: http_reply.json
     verbosity: 1

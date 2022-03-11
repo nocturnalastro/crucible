@@ -1,4 +1,10 @@
 ---
+- debug:
+    var: ai_version
+
+- debug:
+    var: ai_version_number
+
 - name: Assert ai_version is valid
   assert:
     that:
