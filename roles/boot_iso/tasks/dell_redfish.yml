@@ -98,7 +98,7 @@
 - name: DELL Restart system power gracefully
   community.general.redfish_command:
     category: Systems
-    command: PowerGracefulRestart
+    command: PowerForceRestart
     baseuri: "{{ hostvars[inventory_hostname]['bmc_address'] }}"
     username: "{{ hostvars[inventory_hostname]['bmc_user'] }}"
     password: "{{ hostvars[inventory_hostname]['bmc_password'] }}"

@@ -9,7 +9,6 @@
 
     - name: "Build assisted_service_openshift_versions ({{ item }})"
       vars:
-        assisted_service_openshift_versions: {}
         assisted_installer_os_images: []
         assisted_installer_release_images: []
       set_fact:
@@ -79,6 +78,7 @@
         configmap: "{{ assisted_installer_dir }}/configmap.yml"
         recreate: true
         state: created
+      environment:
 
 - name: Setup assisted_installer service
   become: true

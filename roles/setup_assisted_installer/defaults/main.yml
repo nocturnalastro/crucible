@@ -3,8 +3,7 @@ assisted_service_tag: "{{ ai_version }}"
 assisted_service_gui_tag: "{{ ai_version }}"
 assisted_service_image_service_tag: "{{ ai_version }}"
 
-coreos_installer_tag: v0.7.0
-
+# coreos_installer_tag: v0.7.0
 # coreos_installer_image: "quay.io/coreos/coreos-installer:{{ coreos_installer_tag  }}"
 
 # For older version you can use "ocpmetal"
@@ -61,6 +60,12 @@ assisted_installer_os_images_defualts:
       url: "https://mirror.openshift.com/pub/openshift-v4/dependencies/rhcos/4.10/4.10.3/rhcos-4.10.3-x86_64-live.x86_64.iso"
       rootfs_url: "https://mirror.openshift.com/pub/openshift-v4/dependencies/rhcos/4.10/4.10.3/rhcos-4.10.3-x86_64-live-rootfs.x86_64.img"
       version: "410.84.202201251210-0"
+  # "4.11":
+  #   - openshift_version: "4.11"
+  #     cpu_architecture: "x86_64"
+  #     url: https://mirror.openshift.com/pub/openshift-v4/x86_64/dependencies/rhcos/pre-release/4.11.0-0.nightly-2022-04-16-163450/rhcos-live.x86_64.iso
+  #     rootfs_url: https://mirror.openshift.com/pub/openshift-v4/x86_64/dependencies/rhcos/pre-release/4.11.0-0.nightly-2022-04-16-163450/rhcos-live-rootfs.x86_64.img
+  #     version: 410.84.202201280407-0
 
 # Don't forget to update the sample inventory and supported versions
 assisted_installer_release_images_defaults: 
@@ -94,6 +99,11 @@ assisted_installer_release_images_defaults:
       cpu_architecture: "x86_64"
       url: "quay.io/openshift-release-dev/ocp-release{% if 'release_4.10' in image_hashes %}@{{ image_hashes['release_4.10'] }}{% else %}:4.10.10-x86_64{% endif %}"
       version: "4.10.10"
+  # "4.11":
+  #   - openshift_version: "4.11"
+  #     cpu_architecture: "x86_64"
+  #     url: "quay.io/openshift-release-dev/ocp-release-nightly@sha256:48f8c4b829f372a2fa47caa59cab9fd7153ab7693e49daf6ddd3023ee0f6b8c6"
+  #     version: "4.11.0"
 
 assisted_installer_hardware_validation:
 - version: default
