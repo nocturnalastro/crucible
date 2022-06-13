@@ -1,0 +1,5 @@
+---
+- debug: # noqa: unnamed-task
+    msg: "I exist"
+    verbosity: 1
+    
