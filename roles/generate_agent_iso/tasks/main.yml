@@ -1,0 +1,22 @@
+- name: Generate iso
+  ansible.builtin.shell:
+    cmd: "{{ billi_executable }} agent create image"
+    chdir: "{{ cluster_manifest_parent_dir }}"
+
+
+- name: Put discovery iso in http store
+  block:
+    - name: Create discovery directory
+      file:
+        path: "{{ download_dest_path + '/' + download_agent_dest_file | dirname }}"
+        recurse: yes
+        state: directory
+      become: true
+
+    - name: Create discovery directory
+      ansible.builtin.copy:
+        src: "{{ cluster_manifest_parent_dir }}/agent.iso"
+        dest: "{{ download_dest_path + '/' + download_agent_dest_file }}"
+        mode: 0644
+  delegate_to: http_store
+  become: true

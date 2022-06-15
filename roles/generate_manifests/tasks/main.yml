@@ -1,0 +1,25 @@
+-
+
+- name: Render nmstate
+  include_tasks: static.yml
+  loop: "{{ groups['nodes'] }}"
+
+- name: Make cluster-manifests dir
+  file:
+    name: "{{ cluster_manifest_dir  }}"
+    mode: 0775
+    recurse: yes
+    state: directory
+
+- name: Render templates
+  template:
+    src: "{{ item }}"
+    dest: "{{ cluster_manifest_dir  }}/{{ item.split('.')[:-1] | join('.') }}"
+    mode: 0644
+  loop:
+    - agent-cluster-install.yaml.j2
+    - cluster-deployment.yaml.j2
+    - cluster-image-set.yaml.j2
+    - infraenv.yaml.j2
+    - nmstateconfig.yaml.j2
+    - pull-secret.yaml.j2

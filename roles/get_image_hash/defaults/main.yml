@@ -51,7 +51,7 @@ os_images:
     rootfs_url: https://mirror.openshift.com/pub/openshift-v4/aarch64/dependencies/rhcos/4.10/4.10.3/rhcos-4.10.3-aarch64-live-rootfs.aarch64.img
     version: 410.84.202201251210-0
 
-release_images:
+release_images_defaults:
   - openshift_version: '4.6'
     cpu_architecture: x86_64
     url: quay.io/openshift-release-dev/ocp-release:4.6.16-x86_64
@@ -77,6 +77,8 @@ release_images:
     cpu_architecture: arm64
     url: quay.io/openshift-release-dev/ocp-release:4.10.10-aarch64
     version: 4.10.10
+
+release_images: "{{ release_images_defaults }}"
 
 assisted_service_image_repo_url: quay.io/edge-infrastructure
 
