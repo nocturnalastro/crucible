@@ -1,0 +1,5 @@
+---
+- name:  Generate agent iso using BILLI 
+  hosts: localhost
+  roles:
+    - generate_agent_iso

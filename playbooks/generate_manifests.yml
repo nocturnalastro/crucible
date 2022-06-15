@@ -1,0 +1,14 @@
+---
+- name: Generate manfiests for BILLI
+  hosts: localhost
+  vars:
+    destination_hosts:
+      - localhost
+  pre_tasks:
+    - name: pre-compute need to get hashes
+      set_fact:
+        run_get_hash: "{{ image_hashes | default({}) | length == 0  }}"
+  roles:
+    - role: get_image_hash
+      when: run_get_hash
+    - generate_manifests
