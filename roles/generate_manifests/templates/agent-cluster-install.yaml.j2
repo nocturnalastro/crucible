@@ -18,5 +18,5 @@ spec:
     - {{ service_network_cidr }}
   provisionRequirements:
     controlPlaneAgents: {{ groups['masters'] | length }}
-    workerAgents: {{ groups['workers'] | length }}
+    workerAgents: {{ (groups['workers'] | default([]))| length }}
   sshPublicKey: {{ ssh_public_key }}

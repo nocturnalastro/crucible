@@ -4,4 +4,5 @@
 - import_playbook: playbooks/boot_iso.yml 
   vars: 
     discovery_iso_name: "{{ cluster_name}}/agent.iso"
-    
+
+- import_playbook: playbooks/monitor_installation.yml

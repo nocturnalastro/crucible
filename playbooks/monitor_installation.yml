@@ -1,0 +1,6 @@
+- name: Monitor install process
+  hosts: bastion 
+  gather_facts: False
+  roles:
+    - monitor_assisted_installer
+    - monitor_kubeapi
