@@ -1,5 +1,5 @@
 ---
-{% for node in (groups['masters'] + groups['workers']) %}
+{% for node in (groups['masters'] + (groups['workers'] | default([]))) %}
 apiVersion: agent-install.openshift.io/v1beta1
 kind: NMStateConfig
 metadata:

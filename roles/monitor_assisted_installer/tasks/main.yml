@@ -1,0 +1,89 @@
+- name: Load state data
+  set_fact:
+    assisted_installer_ip: "{{  (lookup('file', cluster_manifest_parent_dir + '/.openshift_install_state.json') | string | regex_search(assisted_installer_ip_regex, '\\1')| list)[0] }}"
+  
+- name: Distribute assisted_installer_ip
+  vars:
+    assisted_installer_ip_reference: "{{ assisted_installer_ip }}"
+  set_fact:
+    assisted_installer_ip: "{{ assisted_installer_ip_reference }}"
+  loop: "{{ groups['nodes'] }}"
+  delegate_to: "{{ item }}"
+  delegate_facts: True
+
+- name: Wait for up to 30 minutes for the assisted installer to come online
+  uri:
+    url: "http://{{ assisted_installer_ip }}:8090/api/assisted-install/v2/openshift-versions"
+    method: GET
+    status_code: [200]
+  register: versions_reply
+  until: versions_reply is succeeded
+  retries: 60
+  delay: 30
+
+- name: Fail if resturned version is incorrect as something has gone wrong
+  fail: 
+    msg: "Something went wrong with the version incorrect"
+  when: 
+    - openshift_version not in (versions_reply.json.keys() | list)
+    - openshift_full_version != versions_reply.json[openshift_version].display_name
+
+- name: Wait for up to 30 minutes for cluster definition
+  uri:
+    url: "http://{{ assisted_installer_ip }}:8090/api/assisted-install/v2/clusters"
+    method: GET
+    status_code: [200, 201]
+  register: cluster_reply
+  until: cluster_reply.json | length > 0
+  retries: 60
+  delay: 30
+
+- name: Fail if more than one cluster
+  fail:
+    msg: more than one cluster defined
+  when: cluster_reply.json | length > 1
+
+- name: Get cluster_id
+  set_fact:
+    cluster_id: "{{ cluster_reply.json[0].id }}"
+
+- name: Set number_of_nodes
+  set_fact:
+    number_of_nodes: "{{ (groups['masters'] + (groups['workers'] | default([]))) | length | int }}"
+
+- name: Allow up to 20 minutes for all hosts to be discovered
+  uri:
+    url: "http://{{ assisted_installer_ip }}:8090/api/assisted-install/v2/clusters/{{ cluster_id }}/hosts"
+    method: GET
+    status_code: [200, 201]
+    return_content: True
+  register: cluster
+  until:  ((cluster.json | default([])) | list | length | int) == (number_of_nodes | int) 
+  retries: 30
+  delay: 60
+
+- name: Wait up to an hour to get the credentials
+  uri:
+    url: "http://{{ assisted_installer_ip }}:8090/api/assisted-install/v2/clusters/{{ cluster_id }}//downloads/credentials?file_name=kubeadmin-password"
+    return_content: yes
+    status_code: [200, 201]
+  register: kubeadmin_password_reply
+  until: kubeadmin_password_reply is succeeded
+  retries: 60
+  delay: 60
+
+- name: Vault content
+  set_fact:
+    vault_content:
+      password: "{{ kubeadmin_password_reply.content | quote }}"
+
+- name: Save kubeadmin_password to file
+  copy:
+    content: "{{ vault_content | to_nice_json }}"
+    dest: "{{ dest_dir }}/{{ kubeadmin_vault_name }}"
+    mode: 0600
+
+- name: Save credentials to vault
+  shell:
+    cmd: "ansible-vault encrypt --vault-password-file {{ kubeadmin_vault_password_file_path }} {{ dest_dir }}/{{ kubeadmin_vault_name }}"
+  when: (kubeadmin_vault_password_file_path is defined) and (kubeadmin_vault_password_file_path is file)
