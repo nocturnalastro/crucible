@@ -1,0 +1,24 @@
+---
+- name: Mount Live ISO, Boot into Live ISO (HPE servers using hpilo_boot)
+  block:
+    - name: hpilo_boot poweroff system
+      hpilo_boot:
+        host: "{{ bmc_address }}"
+        login: "{{ bmc_user }}"
+        password: "{{ bmc_password }}"
+        state: "poweroff"
+
+    - name: hpilo_boot disconnect existing Virtual Media
+      hpilo_boot:
+        host: "{{ bmc_address }}"
+        login: "{{ bmc_user }}"
+        password: "{{ bmc_password }}"
+        state: "disconnect"
+
+    - name: hpilo_boot task to boot a system using an ISO
+      hpilo_boot:
+        host: "{{ bmc_address }}"
+        login: "{{ bmc_user }}"
+        password: "{{ bmc_password }}"
+        media: cdrom
+        state: boot_once

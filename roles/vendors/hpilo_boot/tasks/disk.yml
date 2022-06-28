@@ -1,0 +1,26 @@
+---
+- name: Unmount Live ISO, Boot into hdd (HPE servers using hpilo_boot)
+  block:
+    - name: hpilo_boot poweroff system
+      hpilo_boot:
+        host: "{{ bmc_address }}"
+        login: "{{ bmc_user }}"
+        password: "{{ bmc_password }}"
+        state: "poweroff"
+
+    - name: hpilo_boot disconnect existing Virtual Media
+      hpilo_boot:
+        host: "{{ bmc_address }}"
+        login: "{{ bmc_user }}"
+        password: "{{ bmc_password }}"
+        state: "disconnect"
+
+    - name: hpilo_boot task to hdd a system using an ISO
+      hpilo_boot:
+        host: "{{ bmc_address }}"
+        login: "{{ bmc_user }}"
+        password: "{{ bmc_password }}"
+        image: "{{ boot_iso_url }}"
+        media: hdd
+        state: boot_always
+
