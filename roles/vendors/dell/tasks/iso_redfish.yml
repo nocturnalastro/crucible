@@ -6,9 +6,10 @@
     baseuri: "{{ bmc_address }}"
     username: "{{ bmc_user }}"
     password: "{{ bmc_password }}"
+  ignore_errors: True # We're checking if is off in the next block
 
 - block:
-    - name: Wait for machine to DELL Shutdown
+    - name: DELL Wait for machine to Shutdown
       community.general.redfish_info:
         category: Systems
         baseuri: "{{ bmc_address }}"
@@ -28,6 +29,51 @@
         baseuri: "{{ bmc_address }}"
         username: "{{ bmc_user }}"
         password: "{{ bmc_password }}"
+      register: res
+      until: ("The read operation timed out" not in res.msg)
+      retries: 6
+      delay: 10
+
+- when: dell_clear_rhel_uefi_entries | bool
+  block:
+    - name: Get boot options
+      uri: 
+        url: "https://{{ bmc_address }}/redfish/v1/Systems/System.Embedded.1/BootOptions"
+        user: "{{ bmc_user }}"
+        password: "{{ bmc_password }}"
+        method: GET
+        status_code: [200]
+        force_basic_auth: no
+        validate_certs: no
+        return_content: yes
+      register: boot_options
+
+    - name: Get info for boot options
+      uri:
+        url:  "https://{{ bmc_address }}{{ item['@odata.id'] }}"
+        user: "{{ bmc_user }}"
+        password: "{{ bmc_password }}"
+        method: GET
+        force_basic_auth: no
+        validate_certs: no
+        return_content: yes
+      register: boot_option_entries
+      loop: "{{ boot_options.json.Members }}"
+
+    - name: Disable RHEL boot options
+      uri:
+        url:  "https://{{ bmc_address }}{{ item.json['@odata.id'] }}"
+        user: "{{ bmc_user }}"
+        password: "{{ bmc_password }}"
+        method: PATCH
+        body_format: json
+        body: {
+          BootOptionEnabled: False
+        }
+        force_basic_auth: no
+        validate_certs: no
+      loop: "{{ boot_option_entries.results }}"
+      when: ("redhat" in item.json.UefiDevicePath) and item.json.BootOptionEnabled | bool
 
 - block:
     - name: Set Dell OneTimeBoot VirtualCD (VCD-DVD)
@@ -38,6 +84,10 @@
         baseuri: "{{ bmc_address }}"
         username: "{{ bmc_user }}"
         password: "{{ bmc_password }}"
+      register: res
+      until: ("The read operation timed out" not in res.msg)
+      retries: 6
+      delay: 10
   rescue:
     - name: Set Dell OneTimeBoot VirtualCD (Cd)
       community.general.redfish_command:
@@ -47,6 +97,10 @@
         baseuri: "{{ bmc_address }}"
         username: "{{ bmc_user }}"
         password: "{{ bmc_password }}"
+      register: res
+      until: ("The read operation timed out" not in res.msg)
+      retries: 6
+      delay: 10
 
 - block:
     - name: DELL Eject Virtual Media (if any)
@@ -124,3 +178,7 @@
     baseuri: "{{ bmc_address }}"
     username: "{{ bmc_user }}"
     password: "{{ bmc_password }}"
+  register: power_on
+  until: power_on is succeeded
+  retries: 6
+  delay: 20
