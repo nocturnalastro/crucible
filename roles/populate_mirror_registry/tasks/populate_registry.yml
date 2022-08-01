@@ -4,6 +4,8 @@
   tags:
     - mirror_images
     - mirror_installation_images
+  environment:
+    XDG_RUNTIME_DIR: "{{ config_file_path }}"
   block:
     - name: Create podman auth dir
       file:
@@ -21,14 +23,16 @@
     - name: Podman login to remote registry
       containers.podman.podman_login_info:
         registry: "registry.redhat.io"
-      environment:
-        XDG_RUNTIME_DIR: "{{ config_file_path }}"
+
+    - name: Podman login to remote registry
+      containers.podman.podman_login_info:
+        registry: "{{ local_registry }}"
 
     - name: Mirror remote ocpmetal image registry to local
       command:
         cmd: >
           /usr/local/bin/oc image mirror
-            -a "{{ config_file_path }}/{{ pull_secret_file_name }}"
+            -a "{{ config_file_path }}/containers/auth.json"
             {{ item.remote }}
             {{ item.local }}:{{ item.local_tag }}
       loop: "{{ ocpmetal_images }}"
@@ -37,7 +41,7 @@
       command:
         cmd: >
           /usr/local/bin/oc adm release mirror 
-            -a "{{ config_file_path }}/{{ pull_secret_file_name }}"
+            -a "{{ config_file_path }}/containers/auth.json"
             --from="{{ release_image_item.remote | quote }}"
             --to-release-image="{{ release_image_item.local | quote }}:{{ release_image_item.local_tag | quote }}"
             --to="{{ release_image_item.local | quote }}"
@@ -46,7 +50,7 @@
       command:
         cmd: >
           /usr/local/bin/oc adm release mirror
-            -a "{{ config_file_path }}/{{ pull_secret_file_name }}"
+            -a "{{ config_file_path }}/containers/auth.json"
             --from="{{ release_image_item_arm.remote | quote }}"
             --to-release-image="{{ release_image_item_arm.local | quote }}:{{ release_image_item_arm.local_tag | quote }}"
             --to="{{ release_image_item_arm.local | quote }}"
@@ -54,6 +58,8 @@
 
 - name: Populate Mirror  with operators
   become: true
+  environment:
+    XDG_RUNTIME_DIR: "{{ config_file_path }}"
   tags:
     - mirror_images
     - mirror_operators 
@@ -66,16 +72,14 @@
             --from-index "{{ olm_index_item.remote }}"
             --packages "{{ mirror_packages | join(',') }}"
             --tag "{{ olm_index_item.local }}:{{ olm_index_item.local_tag }}"
-      environment:
-        XDG_RUNTIME_DIR: "{{ config_file_path }}"
-
+     
     - name: Push pruned index to local registry
       command:
         cmd: >
           podman push 
             --tls-verify=false
             {{ olm_index_item.local }}:{{ olm_index_item.local_tag }}
-            --authfile "{{ config_file_path }}/{{ pull_secret_file_name }}"
+            --authfile "{{ config_file_path }}/containers/auth.json"
 
     - name: Mirror Catalog to local registry 
       command:
@@ -83,4 +87,4 @@
           oc adm catalog mirror 
             {{ olm_index_item.local }}:{{ olm_index_item.local_tag }}
             {{ olm_item.local }}:{{ olm_item.local_tag }}
-            --registry-config="{{ config_file_path }}/{{ pull_secret_file_name }}"
+            --registry-config="{{ config_file_path }}/containers/auth.json"

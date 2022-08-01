@@ -1,0 +1,113 @@
+- name: Setup 
+  become: true
+  block:
+    - name: Get mirror_registry installer
+      import_tasks: get_mirror_regisitry_installer.yml
+
+    - name: Gather info about specific pods
+      containers.podman.podman_pod_info:
+        name: quay-pod
+      register: quay_pod_details
+
+    - name: Remove Quay Pod
+      containers.podman.podman_pod:
+        name: quay-pod
+        state: absent
+      when: (quay_pod_details.pods | length) > 0
+
+    - name: Remove directory
+      file:
+        path: "{{ registry_dir }}"
+        state: absent
+
+    - name: 
+      shell: >
+        {{ mirror_registry_binary_dest }} install 
+        --quayHostname {{ registry_fqdn }} 
+        --initUser {{ disconnected_registry_user | lower }}
+        --initPassword {{ disconnected_registry_password }}
+        --quayRoot {{ registry_dir }}
+
+- name: Set cert in CA trust
+  become: true
+  block:
+    - name: Copy cert to pki directory
+      copy:
+        src: "{{ cert_path }}"
+        dest: /etc/pki/ca-trust/source/anchors/mirror_registry.crt
+        remote_src: yes
+        owner: "{{ file_owner }}"
+        group: "{{ file_group }}"
+        mode: 0660
+        force: yes
+        backup: yes
+
+    - name: Update the CA trust files
+      command:
+        cmd: update-ca-trust extract  
+
+- name: Fetch the domain cert from the registry host
+  fetch:
+    src: "{{ cert_path }}"
+    dest: "{{ fetched_dest }}/{{ registry_name }}.crt"
+    flat: yes
+  tags:
+    - copy_config
+
+- name: Get cert contents
+  set_fact:
+    mirror_certificate: "{{ lookup('file', fetched_dest + '/' + registry_name + '.crt') }}"
+
+- name: Populate mirror_certificate in bastion
+  set_fact:
+    mirror_certificate: "{{ mirror_certificate }}"
+  delegate_to: "{{ item }}"
+  delegate_facts: true
+  loop: "{{ cert_targets }}"
+
+- name: Create podman auth dir
+  file:
+    path: "{{ config_file_path }}/containers/"
+    state: directory
+    mode: 0755
+
+- name: login to registry
+  containers.podman.podman_login:
+    registry: "{{ registry_fqdn }}:8443"
+    username: "{{ disconnected_registry_user }}"
+    password: "{{ disconnected_registry_password }}"
+  environment:
+    XDG_RUNTIME_DIR: "{{ config_file_path }}"
+
+- name: Copy down registry token
+  fetch:
+    src: "{{ config_file_path }}/containers/auth.json"
+    dest: "{{ fetched_dest }}/registry_auth.json"
+    flat: yes
+
+- name: Set disconnected_auth
+  set_fact:
+    disconnected_registry_up: "{{ disconnected_registry_user }}:{{ disconnected_registry_password }}"
+
+- name: Update pull_secret variable
+  set_fact:
+    pull_secret: "{{ pull_secret | combine({
+      'auths': pull_secret['auths'] | combine({
+        local_registry: {
+          'auth': disconnected_registry_up | b64encode,
+          'email': 'crucible@' + registry_fqdn
+        }
+      })}
+      ) }}"
+
+- name: Write updated pull_secret
+  copy:
+    content: "{{ pull_secret | to_json }}"
+    dest: "{{ config_file_path }}/{{ pull_secret_file_name }}"
+    mode: 0644
+
+- name: Update bastion
+  set_fact:
+    pull_secret: "{{ pull_secret }}"
+  delegate_to: bastion
+  delegate_facts: True
