@@ -24,7 +24,7 @@ opm_tar: opm-linux.tar.gz
 # The information for the locally created registry
 registry_fqdn: "{{ ansible_fqdn }}"
 local_registry: "{{ registry_fqdn }}:{{ registry_port }}"
-registry_port: 5000
+registry_port: 8443
 
 installer_agent_image:
   remote: "quay.io/edge-infrastructure/assisted-installer-agent@{{ image_hashes.installer_agent }}"
