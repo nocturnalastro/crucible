@@ -1,0 +1,24 @@
+- name: Copy cert to pki directory
+  copy:
+    content: "{{ mirror_certificate }}"
+    dest: /etc/pki/ca-trust/source/anchors/ai_registry.crt
+    mode: 0660
+    force: yes
+    backup: yes
+
+- name: Update the CA trust files
+  command:
+    cmd: update-ca-trust extract
+
+- name: Create podman auth dir
+  file:
+    path: "{{ config_file_path }}/containers/"
+    state: directory
+    mode: 0755
+
+- name: Copy pull_secrets file.
+  copy:
+    content: "{{ pull_secret }}"
+    dest: "{{ config_file_path }}/containers/auth.json"
+    mode: 0644
+    remote_src: yes

@@ -47,3 +47,13 @@ port: 8090
 http_proxy: ""
 https_proxy: ""
 no_proxy: ""
+
+ai_firewall_ports:
+  - '8000'
+  - '8090'
+  - '8080'
+  - '8888'
+
+ai_firewall_zones:
+  - 'internal'
+  - 'public'
