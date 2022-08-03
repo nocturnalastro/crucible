@@ -22,3 +22,16 @@
     dest: "{{ config_file_path }}/containers/auth.json"
     mode: 0644
     remote_src: yes
+
+- name: Create directory for certs to be inserted into assisted installer pod
+  file:
+    path: "{{ assisted_installer_dir }}/certs"
+    mode: 0775
+    state: directory
+    recurse: true
+
+- name: Copy certs to containers dir
+  copy:
+    src: "/etc/pki/ca-trust"
+    dest: "{{ assisted_installer_dir }}/certs"
+    remote_src: yes

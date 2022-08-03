@@ -40,6 +40,9 @@ spec:
       envFrom:
       - configMapRef:
           name: config
+      volumeMounts:
+        - mountPath: "/etc/pki/ca-trust:z"
+          name: cert-data
   volumes:
     - name: db-volume
       hostPath:
@@ -48,6 +51,10 @@ spec:
     - name: image-data-volume
       hostPath:
         path:  "{{ assisted_installer_data_dir }}/image_service"
+        type: Directory
+    - name: cert-data
+      hostPath:
+        path: "{{ assisted_installer_dir }}/certs/ca-trust"
         type: Directory
   restartPolicy: OnFailure
   {% if (dns_servers | length) > 0 %}
