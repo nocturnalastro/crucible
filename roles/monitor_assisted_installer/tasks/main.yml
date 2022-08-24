@@ -1,7 +1,7 @@
 - name: Load state data
   set_fact:
     assisted_installer_ip: "{{  (lookup('file', cluster_manifest_parent_dir + '/.openshift_install_state.json') | string | regex_search(assisted_installer_ip_regex, '\\1')| list)[0] }}"
-  
+
 - name: Distribute assisted_installer_ip
   vars:
     assisted_installer_ip_reference: "{{ assisted_installer_ip }}"
@@ -11,30 +11,32 @@
   delegate_to: "{{ item }}"
   delegate_facts: True
 
-- name: Wait for up to 30 minutes for the assisted installer to come online
-  uri:
-    url: "http://{{ assisted_installer_ip }}:8090/api/assisted-install/v2/openshift-versions"
-    method: GET
-    status_code: [200]
-  register: versions_reply
-  until: versions_reply is succeeded
-  retries: 60
-  delay: 30
+# - name: Wait for up to 30 minutes for the assisted installer to come online
+#   uri:
+#     url: "{{ base_url }}/openshift-versions"
+#     method: GET
+#     status_code: [200]
+#   register: versions_reply
+#   until: versions_reply is succeeded
+#   retries: 60
+#   delay: 30
 
-- name: Fail if resturned version is incorrect as something has gone wrong
-  fail: 
-    msg: "Something went wrong with the version incorrect"
-  when: 
-    - openshift_version not in (versions_reply.json.keys() | list)
-    - openshift_full_version != versions_reply.json[openshift_version].display_name
+# - name: Fail if resturned version is incorrect as something has gone wrong
+#   fail:
+#     msg: "Something went wrong with the version incorrect"
+#   when:
+#     - openshift_version not in (versions_reply.json.keys() | list)
+#     - openshift_full_version != versions_reply.json[openshift_version].display_name
 
 - name: Wait for up to 30 minutes for cluster definition
   uri:
-    url: "http://{{ assisted_installer_ip }}:8090/api/assisted-install/v2/clusters"
+    url: "{{ base_url }}/clusters"
     method: GET
     status_code: [200, 201]
   register: cluster_reply
-  until: cluster_reply.json | length > 0
+  until:
+    - ('json' in cluster_reply)
+    - cluster_reply.json | length > 0
   retries: 60
   delay: 30
 
@@ -49,41 +51,46 @@
 
 - name: Set number_of_nodes
   set_fact:
-    number_of_nodes: "{{ (groups['masters'] + (groups['workers'] | default([]))) | length | int }}"
+    number_of_nodes: "{{ inventory_nodes | length | int }}"
 
 - name: Allow up to 20 minutes for all hosts to be discovered
   uri:
-    url: "http://{{ assisted_installer_ip }}:8090/api/assisted-install/v2/clusters/{{ cluster_id }}/hosts"
+    url: "{{ base_url }}/clusters/{{ cluster_id }}/hosts?with-inventory=1"
     method: GET
     status_code: [200, 201]
     return_content: True
-  register: cluster
-  until:  ((cluster.json | default([])) | list | length | int) == (number_of_nodes | int) 
+  register: cluster_hosts
+  until:  ((cluster_hosts.json | default([])) | list | length | int) == (number_of_nodes | int)
   retries: 30
   delay: 60
 
-- name: Wait up to an hour to get the credentials
+- name: Wait for up to 30 minutes for infra-env-id definition
   uri:
-    url: "http://{{ assisted_installer_ip }}:8090/api/assisted-install/v2/clusters/{{ cluster_id }}//downloads/credentials?file_name=kubeadmin-password"
-    return_content: yes
+    url: "{{ base_url }}/infra-envs"
+    method: GET
     status_code: [200, 201]
-  register: kubeadmin_password_reply
-  until: kubeadmin_password_reply is succeeded
+  register: infra_envs_reply
+  until: infra_envs_reply.json | length > 0
   retries: 60
-  delay: 60
+  delay: 30
 
-- name: Vault content
+- name: Fail if more than one cluster
+  fail:
+    msg: more than one infra-env defined
+  when: infra_envs_reply.json | length > 1
+
+- name: Get infra_env_id
   set_fact:
-    vault_content:
-      password: "{{ kubeadmin_password_reply.content | quote }}"
+    infra_env_id: "{{ infra_envs_reply.json[0].id }}"
 
-- name: Save kubeadmin_password to file
-  copy:
-    content: "{{ vault_content | to_nice_json }}"
-    dest: "{{ dest_dir }}/{{ kubeadmin_vault_name }}"
-    mode: 0600
+- name: Patch hostname
+  ansible.builtin.include_tasks:
+    file: patch_hostname.yml
+  loop: "{{ cluster_hosts.json }}"
+  loop_control:
+    loop_var: discovered_host
 
-- name: Save credentials to vault
-  shell:
-    cmd: "ansible-vault encrypt --vault-password-file {{ kubeadmin_vault_password_file_path }} {{ dest_dir }}/{{ kubeadmin_vault_name }}"
-  when: (kubeadmin_vault_password_file_path is defined) and (kubeadmin_vault_password_file_path is file)
+- name: Wait for bootstrap complete
+  ansible.builtin.shell:
+    cmd: "{{ billi_executable }} --log-level=debug agent wait-for bootstrap-complete"
+    chdir: "{{ cluster_manifest_parent_dir }}"

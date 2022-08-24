@@ -50,6 +50,12 @@ os_images:
     url: https://mirror.openshift.com/pub/openshift-v4/aarch64/dependencies/rhcos/4.10/4.10.16/rhcos-4.10.16-aarch64-live.aarch64.iso
     rootfs_url: https://mirror.openshift.com/pub/openshift-v4/aarch64/dependencies/rhcos/4.10/4.10.16/rhcos-4.10.16-aarch64-live-rootfs.aarch64.img
     version: 410.84.202205191234-0
+  - openshift_version: "4.11"
+    cpu_architecture: "x86_64"
+    url: "https://mirror.openshift.com/pub/openshift-v4/x86_64/dependencies/rhcos/pre-release/4.11.0-rc.2/rhcos-4.11.0-rc.2-x86_64-live.x86_64.iso"
+    version: "411.86.202207090519-0"
+
+mirror_registry: "{{ hostvars['registry_host']['registry_fqdn'] }}:{{ hostvars['registry_host']['registry_port'] }}"
 
 release_images_defaults:
   - openshift_version: '4.6'
@@ -77,6 +83,11 @@ release_images_defaults:
     cpu_architecture: arm64
     url: quay.io/openshift-release-dev/ocp-release:4.10.16-aarch64
     version: 4.10.16
+  - openshift_version: '4.11'
+    cpu_architecture: x86_64
+    # url: registry.ci.openshift.org/origin/release:4.11
+    url: "{{ mirror_registry }}/origin/openshift/release-images:4.11"
+    version: 4.11.0-rc.7
 
 release_images: "{{ release_images_defaults }}"
 
@@ -95,4 +106,3 @@ assisted_installer_images:
     url: "{{ assisted_service_image_repo_url }}/assisted-installer-ui:{{ assisted_service_gui_tag }}"
   image_service:
     url: "{{ assisted_service_image_repo_url }}/assisted-image-service:{{ assisted_service_image_service_tag }}"
-  
