@@ -1,0 +1,26 @@
+- name: Identify the host {{ discovered_host.id }} properties
+  set_fact:
+    host_mac_addresses: "{{
+        (discovered_host.inventory | from_json).interfaces | map(attribute='mac_address') | map('upper') | list
+      }}"
+    host_id: "{{ discovered_host.id }}"
+
+- name: Set host name and role for {{ discovered_host.id }}
+  set_fact:
+    host_name: "{{ item }}"
+  when: hostvars[item]['mac'] is defined and (hostvars[item]['mac'] | upper) in host_mac_addresses
+  loop: "{{ inventory_nodes }}"
+  no_log: True
+
+- name: "Patch host {{ host_name }}"
+  uri:
+    url: "{{ base_url }}/infra-envs/{{ infra_env_id }}/hosts/{{ discovered_host.id }}"
+    method: PATCH
+    url_username: "{{ HTTP_AUTH_USERNAME }}"
+    url_password: "{{ HTTP_AUTH_PASSWORD }}"
+    body_format: json
+    status_code: [201]
+    return_content: True
+    body:
+      host_name: "{{ host_name }}"
+  register: http_reply

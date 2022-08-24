@@ -1,8 +1,49 @@
-- name: Generate iso
-  ansible.builtin.shell:
-    cmd: "{{ billi_executable }} agent create image"
-    chdir: "{{ cluster_manifest_parent_dir }}"
+# - name: Create podman auth dir
+#   file:
+#     path: "{{ config_file_path }}/containers/"
+#     state: directory
+#     mode: 0755
+#     recurse: true
 
+
+- name: Create podman auth dir
+  file:
+    path: "{{ ansible_env.HOME }}/.docker"
+    state: directory
+    mode: 0755
+    recurse: true
+
+
+# - name: Copy pull_secret file.
+#   copy:
+#     content: "{{ pull_secret }}"
+#     dest: "{{ config_file_path }}/containers/auth.json"
+#     mode: 0644
+
+- name: Copy pull_secret file.
+  copy:
+    content: "{{ pull_secret }}"
+    dest: "{{ ansible_env.HOME }}/.docker/config.json"
+    mode: 0644
+
+- name: Login and generate iso
+  environment:
+    XDG_RUNTIME_DIR: "{{ config_file_path }}"
+    REGISTRY_AUTH_FILE: "{{ config_file_path }}/containers/auth.json"
+  block:
+    - debug:
+        var: config_file_path
+
+    # - name: Podman login to remote registry
+    #   containers.podman.podman_login_info:
+    #     registry: "registry.redhat.io"
+
+    - name: Generate iso
+      ansible.builtin.shell:
+        cmd: "{{ billi_executable }} --log-level=debug agent create image"
+        chdir: "{{ cluster_manifest_parent_dir }}"
+      environment:
+        OPENSHIFT_INSTALL_RELEASE_IMAGE_OVERRIDE: "{{ (assisted_installer_release_images |json_query(version_filter))[0].url }}"
 
 - name: Put discovery iso in http store
   block:
@@ -11,7 +52,6 @@
         path: "{{ download_dest_path + '/' + download_agent_dest_file | dirname }}"
         recurse: yes
         state: directory
-      become: true
 
     - name: Create discovery directory
       ansible.builtin.copy:

@@ -1,5 +1,3 @@
--
-
 - name: Render nmstate
   include_tasks: static.yml
   loop: "{{ groups['nodes'] }}"
@@ -11,11 +9,27 @@
     recurse: yes
     state: directory
 
+- name: Update pull_secret variable
+  set_fact:
+    local_pull_secret: "{{ pull_secret | combine({
+        'auths': pull_secret['auths'] | combine({
+            'registry.ci.openshift.org': {
+              'auth': pull_secret['auths'][mirror_registry]['auth'],
+            }
+          })
+        })
+      }}"
+  when: use_local_mirror_registry  | bool
+
+
+
 - name: Render templates
   template:
     src: "{{ item }}"
-    dest: "{{ cluster_manifest_dir  }}/{{ item.split('.')[:-1] | join('.') }}"
+    dest: "{{ cluster_manifest_dir  }}/{{ item.rsplit('.', 1)[0] }}"
     mode: 0644
+    trim_blocks: true
+    lstrip_blocks: true
   loop:
     - agent-cluster-install.yaml.j2
     - cluster-deployment.yaml.j2
@@ -23,3 +37,32 @@
     - infraenv.yaml.j2
     - nmstateconfig.yaml.j2
     - pull-secret.yaml.j2
+
+- name: Render agent-config templates
+  template:
+    src: "{{ agent_template }}"
+    dest: "{{ cluster_manifest_parent_dir  }}/{{ agent_template.rsplit('.', 1)[0] }}"
+    mode: 0644
+    trim_blocks: true
+    lstrip_blocks: true
+  vars:
+    agent_template: agent-config.yaml.j2
+
+- name: "Make mirror dir"
+  file:
+    path: "{{ cluster_manifest_parent_dir }}/mirror"
+    state: directory
+    recurse: yes
+  when: use_local_mirror_registry | bool
+
+- name: Render mirror templates
+  template:
+    src: "{{ item }}"
+    dest: "{{ cluster_manifest_parent_dir }}/mirror/{{ item.rsplit('.', 1)[0] }}"
+    mode: 0644
+    trim_blocks: true
+    lstrip_blocks: true
+  when: use_local_mirror_registry | bool
+  loop:
+    - ca-bundle.crt.j2
+    - registries.conf.j2
