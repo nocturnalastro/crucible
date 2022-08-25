@@ -1,34 +1,16 @@
 unqualified-search-registries = ["registry.access.redhat.com", "docker.io"]
 [[registry]]
    prefix = ""
-   location = "quay.io/edge-infrastructure"
-   mirror-by-digest-only = false
-   [[registry.mirror]]
-   location = "{{ mirror_registry }}/ocpmetal"
-[[registry]]
-   prefix = ""
    location = "quay.io/openshift-release-dev/ocp-release"
    mirror-by-digest-only = false
    [[registry.mirror]]
-   location = "{{ mirror_registry }}/origin/openshift/release"
+   location = "{{ mirror_registry }}/origin/release-images"
 [[registry]]
    prefix = ""
    location = "quay.io/openshift-release-dev/ocp-v4.0-art-dev"
    mirror-by-digest-only = false
    [[registry.mirror]]
-   location = "{{ mirror_registry }}/origin/openshift/release"
-[[registry]]
-   prefix = ""
-   location = "registry.ci.openshift.org/origin/release"
-   mirror-by-digest-only = false
-   [[registry.mirror]]
-   location = "{{ mirror_registry }}/origin/openshift/release-images"
-[[registry]]
-   prefix = ""
-   location = "registry.ci.openshift.org/origin/4.11-2022-08-19-110433"
-   mirror-by-digest-only = false
-   [[registry.mirror]]
-   location = "{{ mirror_registry }}/origin/openshift/release"
+   location = "{{ mirror_registry }}/origin"
 [[registry]]
    prefix = ""
    location = "k8s.gcr.io/pause"

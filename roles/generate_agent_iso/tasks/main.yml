@@ -43,7 +43,7 @@
         cmd: "{{ billi_executable }} --log-level=debug agent create image"
         chdir: "{{ cluster_manifest_parent_dir }}"
       environment:
-        OPENSHIFT_INSTALL_RELEASE_IMAGE_OVERRIDE: "{{ (assisted_installer_release_images |json_query(version_filter))[0].url }}"
+        OPENSHIFT_INSTALL_RELEASE_IMAGE_OVERRIDE: "{{ (release_images_defaults |json_query(version_filter))[0].url }}"
 
 - name: Put discovery iso in http store
   block:

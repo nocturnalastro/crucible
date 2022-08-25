@@ -100,6 +100,7 @@
       set_fact:
         assisted_installer_os_images: "{{ os_images }}"
         assisted_installer_release_images: "{{ release_images }}"
+        release_images_defaults: "{{ release_images_defaults }}"
       delegate_to: "{{ item }}"
       delegate_facts: true
       loop: "{{ destination_hosts }}"
