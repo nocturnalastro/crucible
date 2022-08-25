@@ -29,9 +29,18 @@
       setup:
       when: SETUP_REGISTRY_SERVICE == True
   roles:
-    # - role: setup_selfsigned_cert
-    #   when: SETUP_REGISTRY_SERVICE == True
+    - role: setup_selfsigned_cert
+      when:
+        - SETUP_REGISTRY_SERVICE == True
+        - not (deploy_supported_registry | bool)
+    - role: setup_mirror_registry
+      when:
+        - SETUP_REGISTRY_SERVICE == True
+        - not (deploy_supported_registry | bool)
     - role: setup_mirror_registry_supported
-      when: SETUP_REGISTRY_SERVICE == True
+      when:
+        - SETUP_REGISTRY_SERVICE == True
+        - deploy_supported_registry | bool
+
 
 - import_playbook: populate_registry.yml

@@ -1,5 +1,8 @@
 #jinja2:trim_blocks: True, lstrip_blocks: True
 kind: AgentConfig
+metadata:
+  labels:
+    cluster-name: {{ cluster_name }}
 spec:
   {% if billi_bootstrap_node is defined %}
   rendezvousIP: {{ hostvars[billi_bootstrap_node]['ansible_host'] }}
