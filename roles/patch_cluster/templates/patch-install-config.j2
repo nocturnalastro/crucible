@@ -11,6 +11,9 @@ imageContentSources:
 - mirrors:
   - {{ mirror_registry }}/edge-infrastructure
   source: quay.io/edge-infrastructure
+- mirrors:
+  - "{{ mirror_registry }}/k8s-gcr/pause"
+  source: k8s.gcr.io/pause
 additionalTrustBundle: |
 {{ mirror_certificate.split("\n") | map("regex_replace", "^(?!\s{4})", "    ") | list | join("\n") }}
 sshKey: {{ ssh_public_key }}

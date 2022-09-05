@@ -64,6 +64,11 @@ olm_item:
   local: "{{ local_registry }}/olm"
   local_tag: "v{{ openshift_version }}"
 
+k8s_pause:
+  remote: "k8s.gcr.io/pause:3.5"
+  local: "{{ local_registry }}/k8s-gcr/pause"
+  local_tag: "3.5"
+
 ocpmetal_images:
   - "{{ installer_agent_image }}"
   - "{{ installer_image }}"

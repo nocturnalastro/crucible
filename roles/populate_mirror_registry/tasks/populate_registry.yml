@@ -36,7 +36,7 @@
     - name: Mirror release image to local (x86_64)
       command:
         cmd: >
-          /usr/local/bin/oc adm release mirror 
+          /usr/local/bin/oc adm release mirror
             -a "{{ config_file_path }}/{{ pull_secret_file_name }}"
             --from="{{ release_image_item.remote | quote }}"
             --to-release-image="{{ release_image_item.local | quote }}:{{ release_image_item.local_tag | quote }}"
@@ -52,17 +52,25 @@
             --to="{{ release_image_item_arm.local | quote }}"
       when: arm_release_image_key in image_hashes
 
+    - name: Mirror kubernetes pause container which podman uses to spin up pods
+      command:
+        cmd: >
+          /usr/local/bin/oc image mirror
+            -a "{{ config_file_path }}/{{ pull_secret_file_name }}"
+            {{ k8s_pause.remote }}
+            {{ k8s_pause.local }}:{{ k8s_pause.local_tag }}
+
 - name: Populate Mirror  with operators
   become: true
   tags:
     - mirror_images
-    - mirror_operators 
+    - mirror_operators
   when: populate_operator_catalog | bool
   block:
     - name: Build pruned OLM index
       command:
         cmd: >
-          /usr/local/bin/opm index prune 
+          /usr/local/bin/opm index prune
             --from-index "{{ olm_index_item.remote }}"
             --packages "{{ mirror_packages | join(',') }}"
             --tag "{{ olm_index_item.local }}:{{ olm_index_item.local_tag }}"
@@ -72,15 +80,15 @@
     - name: Push pruned index to local registry
       command:
         cmd: >
-          podman push 
+          podman push
             --tls-verify=false
             {{ olm_index_item.local }}:{{ olm_index_item.local_tag }}
             --authfile "{{ config_file_path }}/{{ pull_secret_file_name }}"
 
-    - name: Mirror Catalog to local registry 
+    - name: Mirror Catalog to local registry
       command:
         cmd: >
-          oc adm catalog mirror 
+          oc adm catalog mirror
             {{ olm_index_item.local }}:{{ olm_index_item.local_tag }}
             {{ olm_item.local }}:{{ olm_item.local_tag }}
             --registry-config="{{ config_file_path }}/{{ pull_secret_file_name }}"
