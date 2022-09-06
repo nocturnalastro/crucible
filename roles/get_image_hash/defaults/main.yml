@@ -90,7 +90,8 @@ release_images_defaults:
     cpu_architecture: x86_64
     # url: registry.ci.openshift.org/origin/release:4.11
     # url: "{{ mirror_registry }}/origin/openshift/release-images:4.11"
-    url: quay.io/openshift-release-dev/ocp-release:4.11.0-x86_64
+    # url: quay.io/openshift-release-dev/ocp-release:4.11.0-x86_64
+    url: quay.io/openshift-release-dev/ocp-release@sha256:300bce8246cf880e792e106607925de0a404484637627edf5f517375517d54a4
     version: 4.11.0
 
 release_images: "{{ release_images_defaults }}"

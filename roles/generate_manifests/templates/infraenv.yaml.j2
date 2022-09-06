@@ -10,6 +10,8 @@ spec:
   pullSecretRef:
     name: pull-secret
   sshAuthorizedKey: {{ ssh_public_key }}
+  additionalNTPSources:
+    - {{ ntp_server }}
   nmStateConfigLabelSelector:
     matchLabels:
       cluster-name: {{ cluster_name }}
