@@ -1,5 +1,0 @@
-- name: Monitor install process via the oc command
-  hosts: bastion 
-  gather_facts: False
-  roles:
-    - monitor_kubeapi

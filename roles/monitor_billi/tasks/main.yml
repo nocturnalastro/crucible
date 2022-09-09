@@ -83,14 +83,19 @@
   set_fact:
     infra_env_id: "{{ infra_envs_reply.json[0].id }}"
 
-- name: Patch hostname
-  ansible.builtin.include_tasks:
-    file: patch_hostname.yml
-  loop: "{{ cluster_hosts.json }}"
-  loop_control:
-    loop_var: discovered_host
+# - name: Patch hostname and role
+#   ansible.builtin.include_tasks:
+#     file: patch_hostname.yml
+#   loop: "{{ cluster_hosts.json }}"
+#   loop_control:
+#     loop_var: discovered_host
 
 - name: Wait for bootstrap complete
   ansible.builtin.shell:
     cmd: "{{ billi_executable }} --log-level=debug agent wait-for bootstrap-complete"
+    chdir: "{{ cluster_manifest_parent_dir }}"
+
+- name: Wait for install complete
+  ansible.builtin.shell:
+    cmd: "{{ billi_executable }} --log-level=debug agent wait-for install-complete"
     chdir: "{{ cluster_manifest_parent_dir }}"

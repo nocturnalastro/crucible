@@ -1,5 +1,0 @@
-- name: Monitor install process via assisted installer
-  hosts: bastion 
-  gather_facts: False
-  roles:
-    - monitor_assisted_installer

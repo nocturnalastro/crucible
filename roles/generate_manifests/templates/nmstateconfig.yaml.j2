@@ -7,7 +7,8 @@ metadata:
   name: {{ node }}
   namespace: openshift-machine-api
   labels:
-    cluster-name: {{ cluster_name }}
+    {# cluster-name: {{ cluster_name }} #}
+    infraenvs.agent-install.openshift.io: ""
 spec:
   config:
     {{ static_network_config[node].network_yaml | indent(4) }}

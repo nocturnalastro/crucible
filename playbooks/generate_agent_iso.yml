@@ -1,5 +1,18 @@
 ---
-- name:  Generate agent iso using BILLI 
+# - name: Play to populate image_hashes for relevant images
+#   hosts: localhost
+#   vars:
+#     destination_hosts:
+#       - assisted_installer
+#   pre_tasks:
+#     - name: pre-compute need to get hashes
+#       set_fact:
+#         run_get_hash: "{{ release_images_defaults | default({}) | length == 0  }}"
+#   roles:
+#     - role: get_image_hash
+#       when: run_get_hash
+
+- name:  Generate agent iso using BILLI
   hosts: localhost
   roles:
     - generate_agent_iso

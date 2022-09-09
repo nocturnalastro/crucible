@@ -11,9 +11,9 @@ unqualified-search-registries = ["registry.access.redhat.com", "docker.io"]
    mirror-by-digest-only = false
    [[registry.mirror]]
    location = "{{ mirror_registry }}/ocp4/openshift4"
-[[registry]]
+{# [[registry]]
    prefix = ""
    location = "k8s.gcr.io/pause"
    mirror-by-digest-only = false
    [[registry.mirror]]
-   location = "{{ mirror_registry }}/k8s-gcr/pause"
+   location = "{{ mirror_registry }}/k8s-gcr/pause" #}

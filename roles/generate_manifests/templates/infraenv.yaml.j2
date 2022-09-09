@@ -14,4 +14,5 @@ spec:
     - {{ ntp_server }}
   nmStateConfigLabelSelector:
     matchLabels:
-      cluster-name: {{ cluster_name }}
+      {# cluster-name: {{ cluster_name }} #}
+      infraenvs.agent-install.openshift.io: ""

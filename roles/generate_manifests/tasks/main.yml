@@ -38,15 +38,16 @@
     - nmstateconfig.yaml.j2
     - pull-secret.yaml.j2
 
-# - name: Render agent-config templates
-#   template:
-#     src: "{{ agent_template }}"
-#     dest: "{{ cluster_manifest_parent_dir  }}/{{ agent_template.rsplit('.', 1)[0] }}"
-#     mode: 0644
-#     trim_blocks: true
-#     lstrip_blocks: true
-#   vars:
-#     agent_template: agent-config.yaml.j2
+- name: Render agent-config templates
+  template:
+    src: "{{ agent_template }}"
+    dest: "{{ cluster_manifest_parent_dir  }}/{{ agent_template.rsplit('.', 1)[0] }}"
+    mode: 0644
+    trim_blocks: true
+    lstrip_blocks: true
+  vars:
+    agent_template: agent-config.yaml.j2
+  when: (use_agent_config | default(false)) | bool
 
 - name: "Make mirror dir"
   file:

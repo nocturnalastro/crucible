@@ -31,17 +31,17 @@
   no_log: True
   when: install | bool == True
 
-- name: Patch worker partition
-  uri:
-    url: "{{ URL_ASSISTED_INSTALLER_INFRA_ENV }}/hosts/{{ discovered_host.id }}/ignition"
-    method: GET
-    status_code: [200, 201]
-    return_content: True
-  register: http_reply
-  with_items:
-    - "{{ cluster.json.hosts }}"
-  loop_control:
-    loop_var: discovered_host
+# - name: Patch worker partition
+#   uri:
+#     url: "{{ URL_ASSISTED_INSTALLER_INFRA_ENV }}/hosts/{{ discovered_host.id }}/ignition"
+#     method: GET
+#     status_code: [200, 201]
+#     return_content: True
+#   register: http_reply
+#   with_items:
+#     - "{{ cluster.json.hosts }}"
+#   loop_control:
+#     loop_var: discovered_host
 
 - name: Patch cluster with config vars relevant to the selected HA mode
   when: (install | bool == True)
@@ -222,4 +222,3 @@
   until: cluster.json.status in cluster_installation_states
   retries: 5
   delay: 60
-  
