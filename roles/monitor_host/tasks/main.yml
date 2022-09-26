@@ -1,26 +1,20 @@
 ---
 # tasks file for monitor_cluster
 
-- name : Get cluster status during installation
+- name : Get get hosts status during installation
   uri:
-    url: "{{ URL_ASSISTED_INSTALLER_CLUSTER }}"
+    url: "{{ URL_ASSISTED_INSTALLER_CLUSTER }}/hosts?with-inventory=1"
     method: GET
     status_code: [200, 201]
     return_content: True
-  register: cluster
+  register: cluster_hosts
   delegate_to: bastion
 
-- debug: # noqa unnamed-task
-    msg: "{{ cluster.json.hosts }}"
-    verbosity: 1
-
-- name: Identify the host
+- name: Find host
   set_fact:
     current_host: "{{ item }}"
-  loop: "{{ cluster.json.hosts }}"
-  when: item.requested_hostname == inventory_hostname
-  no_log: True
-
+  when: (mac | upper) in ((item.inventory | from_json).interfaces | flatten | map(attribute='mac_address') | map('upper') | list )
+  loop: "{{ cluster_hosts.json }}"
 
 - debug: # noqa unnamed-task
     msg: "{{ current_host }}"
@@ -33,5 +27,5 @@
       delegate_to: bastion
   vars:
     host_id: "{{ current_host.id }}"
-    host_name: "{{ current_host.requested_hostname }}"
+    host_name: "{{ inventory_hostname }}"
   no_log: True
