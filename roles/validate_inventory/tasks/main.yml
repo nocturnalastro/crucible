@@ -14,8 +14,8 @@
       tags: validate_cluster
 
     - include_tasks:
-        file: vendor.yml 
-        apply: 
+        file: vendor.yml
+        apply:
           tags: validate_vendor
       tags: validate_vendor
 
@@ -54,7 +54,7 @@
         apply:
           tags: validate_day2
       tags: validate_day2
-    
+
     - include_tasks:
         file: partitions.yml
         apply:

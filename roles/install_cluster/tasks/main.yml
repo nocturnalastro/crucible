@@ -86,11 +86,11 @@
     patch_cluster_networking_body: '{{
         {
           "cluster_networks": [
-              {
-                "cluster_id": cluster_id,
-                "cidr": cluster_network_cidr,
-                "host_prefix": (cluster_network_host_prefix | int),
-              }
+            {
+              "cluster_id": cluster_id,
+              "cidr": cluster_network_cidr,
+              "host_prefix": (cluster_network_host_prefix | int),
+            }
           ],
           "service_networks": [
             {
@@ -210,4 +210,3 @@
   until: cluster.json.status in cluster_installation_states
   retries: 5
   delay: 60
-  
