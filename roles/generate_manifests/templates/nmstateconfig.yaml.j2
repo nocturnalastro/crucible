@@ -1,0 +1,21 @@
+#jinja2:trim_blocks: True, lstrip_blocks: True
+---
+{% for node in (groups['masters'] + (groups['workers'] | default([]))) %}
+apiVersion: agent-install.openshift.io/v1beta1
+kind: NMStateConfig
+metadata:
+  name: {{ node }}
+  namespace: openshift-machine-api
+  labels:
+    {# cluster-name: {{ cluster_name }} #}
+    infraenvs.agent-install.openshift.io: ""
+spec:
+  config:
+    {{ static_network_config[node].network_yaml | indent(4) }}
+  interfaces:
+    {% for item in static_network_config[node].mac_interface_map %}
+    - name: {{ item.logical_nic_name }}
+      macAddress: {{ item.mac_address}}
+    {% endfor %}
+---
+{% endfor %}

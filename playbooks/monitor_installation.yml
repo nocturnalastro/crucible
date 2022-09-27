@@ -1,0 +1,5 @@
+- name: Monitor agent based install process
+  hosts: bastion
+  gather_facts: False
+  roles:
+    - monitor_agent_based_installer

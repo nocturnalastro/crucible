@@ -1,0 +1,48 @@
+- name: Assert no day2 nodes
+  assert:
+    that:
+      - (groups['day2_workers'] | default([])) | length  == 0
+    fail_msg: "use_agent_based_installer does not support day2 workers"
+
+- name: Assert no partitions
+  assert:
+    that:
+       - hostvars[item]['disks'] is not defined
+    fail_msg: "Can not use partitions when using use_agent_based_installer"
+  loop: "{{ groups['nodes'] | default([]) }}"
+
+- name: Assert network_type is not defined
+  assert:
+    that:
+      - network_type is not defined
+    fail_msg: "Can not use network_type when using use_agent_based_installer"
+
+- name: Assert ip addresses are not ipv6
+  assert:
+    that:
+      - (api_vip | ipv6 | bool) == False
+      - (ingress_vip | ipv6 | bool) == False
+    fail_msg: "IPv6 is not supported yet when using use_agent_based_installer"
+
+- name: Assert ip addresses are not ipv6
+  assert:
+    that:
+      - (hostvars[item][hostvars[item]['host_ip_keyword'] | default('ansible_host')] | ipv6 | bool) == False
+    fail_msg: |
+      IPv6 is not supported yet if you are doing dual stack please put the
+      {{ hostvars[item]['host_ip_keyword'] | default('ansible_host') }} as the ipv4 address
+  loop: "{{ groups['nodes'] | default([]) }}"
+
+- name: Assert proxy config is not defined
+  assert:
+    that:
+      - http_proxy is not defined
+      - https_proxy is not defined
+      - no_proxy is not defined
+    fail_msg: "Proxy confgiuration is not supported when use_agent_based_installer"
+
+- name: Assert discovery is password hash is not defined
+  assert:
+    that:
+      - hashed_discovery_password is not defined
+    fail_msg: "hashed_discovery_password is not supported when use_agent_based_installer"

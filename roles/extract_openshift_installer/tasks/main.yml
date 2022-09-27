@@ -1,0 +1,40 @@
+---
+- name: "Create {{ extact_dest_path }}"
+  file:
+    path: "{{ extact_dest_path }}"
+    state: directory
+    mode: 0755
+    recurse: true
+
+- name: Create pull_secret_file
+  copy:
+    content: "{{ pull_secret }}"
+    dest: "{{ pull_secret_file }}"
+    mode: "0600"
+
+- name: Extract openshift_installer
+  shell:
+    cmd: >
+      oc adm
+      -a {{ pull_secret_file }}
+      release extract
+      --command=openshift-install
+      {{ release_image }}
+      --to={{ extact_dest_path }}
+
+- name: Check extracted installer has agent subcommand
+  shell:
+    cmd: "{{ openshift_installer_path }} agent --help"
+  register: res
+  failed_when: False
+
+- name: Check agent sub-commmand output
+  fail:
+    msg: >
+      Version of openshift install extracted from
+      release image does not have agent subcommand
+  when: "'unknown command' in res.stderr"
+
+- name: Set agent_based_installer_path
+  set_fact:
+    agent_based_installer_path: "{{ openshift_installer_path }}"

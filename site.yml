@@ -6,5 +6,7 @@
 - import_playbook: deploy_cluster.yml
 
 - import_playbook: post_install.yml
+  when: not ((use_agent_based_installer | default(false)) | bool)
 
 - import_playbook: deploy_day2_workers.yml
+  when: not ((use_agent_based_installer | default(false)) | bool)

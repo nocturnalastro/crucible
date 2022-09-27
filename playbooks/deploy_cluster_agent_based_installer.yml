@@ -1,0 +1,7 @@
+---
+- import_playbook: extract_agent_based_installer.yml
+  when: agent_based_installer_path is not defined
+- import_playbook: generate_manifests.yml
+- import_playbook: generate_agent_iso.yml
+- import_playbook: boot_iso.yml
+- import_playbook: monitor_agent_based_installer.yml
