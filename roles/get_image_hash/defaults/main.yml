@@ -93,4 +93,5 @@ assisted_installer_images:
     url: "{{ assisted_service_image_repo_url }}/assisted-installer-ui:{{ assisted_service_gui_tag }}"
   image_service:
     url: "{{ assisted_service_image_repo_url }}/assisted-image-service:{{ assisted_service_image_service_tag }}"
-  
+
+extra_skopeo_flags: "{{ (varify_tls | default(True)) | ternary('', '--tls-verify=false') }}"
