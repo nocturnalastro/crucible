@@ -1,0 +1,7 @@
+#jinja2:trim_blocks: True, lstrip_blocks: True
+apiVersion: cluster.open-cluster-management.io/v1
+kind: ManagedCluster
+metadata:
+  name: {{ cluster_name }}
+spec:
+  hubAcceptsClient: true

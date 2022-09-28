@@ -1,0 +1,32 @@
+#jinja2:trim_blocks: True, lstrip_blocks: True
+apiVersion: extensions.hive.openshift.io/v1beta1
+kind: AgentClusterInstall
+metadata:
+  name: {{ cluster_name }}
+  namespace: {{ cluster_name }}
+spec:
+  {% if not single_node_openshift_enabled %}
+  apiVIP: {{ api_vip }}
+  ingressVIP: {{ ingress_vip }}
+  {% endif %}
+  clusterDeploymentRef:
+    name: {{ cluster_name }}
+  imageSetRef:
+    name: {{ image_set_ref }}
+  networking:
+    clusterNetwork:
+    - cidr: {{ cluster_network_cidr }}
+      hostPrefix: {{ cluster_network_host_prefix }}
+    {% for cluster_network in (extra_cluster_networks | default([])) %}
+    - cidr: {{ cluster_network.cidr }}
+      hostPrefix: {{ cluster_network.host_prefix }}
+    {% endfor %}
+    serviceNetwork:
+    - {{ service_network_cidr }}
+    {% for service_network in (extra_service_networks | default([])) %}
+    - {{ service_network.cidr }}
+    {% endfor %}
+  provisionRequirements:
+    controlPlaneAgents: {{ groups['masters'] | length }}
+    workerAgents: {{ (groups['workers'] | default([]))| length }}
+  sshPublicKey: {{ ssh_public_key }}

@@ -1,0 +1,21 @@
+#jinja2:trim_blocks: True, lstrip_blocks: True
+apiVersion: hive.openshift.io/v1
+kind: ClusterDeployment
+metadata:
+  name: {{ cluster_name }}
+  namespace: {{ cluster_name }}
+spec:
+  baseDomain: {{ base_dns_domain }}
+  clusterInstallRef:
+    group: extensions.hive.openshift.io
+    kind: AgentClusterInstall
+    name: {{ cluster_name }}
+    version: v1beta1
+  clusterName: {{ cluster_name }}
+  platform:
+    agentBareMetal:
+      agentSelector:
+        matchLabels:
+          cluster-name: {{ cluster_name }}
+  pullSecretRef:
+    name: assisted-deployment-pull-secret

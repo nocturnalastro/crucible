@@ -1,0 +1,34 @@
+- name: Set node names
+  set_fact:
+    node_names: "{{ (groups['masters'] + (groups['workers'] | default([]))) }}"
+
+- name: Render nmstate
+  include_tasks: static.yml
+  loop: "{{ node_names }}"
+
+- name: Make cluster-manifests dir
+  file:
+    name: "{{ cluster_manifest_dir  }}"
+    mode: 0775
+    recurse: yes
+    state: directory
+
+- name: Render templates
+  template:
+    src: "{{ item }}"
+    dest: "{{ cluster_manifest_dir  }}/{{ item.rsplit('.', 1)[0] }}"
+    mode: 0644
+    trim_blocks: true
+    lstrip_blocks: true
+  loop:
+    - 00-namespace.yaml.j2
+    - 10-pull-secret.yaml.j2
+    - 20-agent-cluster-install.yaml.j2
+    - 20-bmc-secrets.yaml.j2
+    - 20-cluster-deployment.yaml.j2
+    # - 20-cluster-image-set.yaml.j2
+    - 20-klusterlet-addon-config.yaml.j2
+    - 20-managed-cluster.yaml.j2
+    - 20-nmstateconfig.yaml.j2
+    - 30-infraenv.yaml.j2
+    - 30-bare-metal-hosts.yaml.j2

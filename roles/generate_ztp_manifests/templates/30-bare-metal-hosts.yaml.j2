@@ -1,0 +1,32 @@
+#jinja2:trim_blocks: True, lstrip_blocks: True
+{% for node_name in node_names %}
+---
+apiVersion: metal3.io/v1alpha1
+kind: BareMetalHost
+metadata:
+  name: {{ node_name }}
+  namespace: {{ cluster_name }}
+  annotations:
+    inspect.metal3.io: disabled
+    bmac.agent-install.openshift.io/hostname: "{{ node_name }}.{{ cluster_name }}.{{ base_dns_domain }}"
+    bmac.agent-install.openshift.io/role: {{ hostvars[node_name]['role'] }}
+    bmac.agent-install.openshift.io/installer-args: '["--copy-network"]'
+  labels:
+    infraenvs.agent-install.openshift.io: "{{ cluster_name }}"
+spec:
+  bootMode: "UEFI"
+  bmc:
+    {% if (hostvars[node_name]['vendor'] | lower) == 'kvm' %}
+      address: redfish-virtualmedia+http://{{ hostvars[node_name]['bmc_address'] }}/redfish/v1/Systems/1/{{ hostvars[node_name]['uuid'] }}
+    {% if (hostvars[node_name]['vendor'] | lower) == 'dell' %}
+      address: idrac-virtualmedia+https://{{ hostvars[node_name]['bmc_address'] }}/redfish/v1/Systems/System.Embedded.1
+    {% else %} {# Catch all for other redfish #}
+      address: redfish-virtualmedia+https://{{ hostvars[node_name]['bmc_address'] }}/redfish/v1/Systems/System.Embedded.1
+    {% endif %}
+    disableCertificateVerification: true
+    credentialsName: {{ cluster_name }}-{{ node_name }}-bmc-secret
+  bootMACAddress: {{ hostvars[node_name]['mac'] | upper }}
+  automatedCleaningMode: disabled
+  online: true
+{% endfor %}
+---

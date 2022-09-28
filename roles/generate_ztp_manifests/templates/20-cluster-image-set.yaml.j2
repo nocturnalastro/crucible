@@ -1,0 +1,7 @@
+#jinja2:trim_blocks: True, lstrip_blocks: True
+apiVersion: hive.openshift.io/v1
+kind: ClusterImageSet
+metadata:
+  name: "{{ image_set_ref }}"
+spec:
+  releaseImage: {{ release_image }}

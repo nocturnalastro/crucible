@@ -1,0 +1,7 @@
+#jinja2:trim_blocks: True, lstrip_blocks: True
+apiVersion: v1
+kind: Namespace
+metadata:
+     name: {{ cluster_name }}
+     labels:
+        name: {{ cluster_name }}
