@@ -28,7 +28,7 @@
           "https_proxy": https_proxy,
           "no_proxy": no_proxy,
           "additional_ntp_source": ntp_server,
-          "schedulable_masters": schedulable_masters, 
+          "schedulable_masters": schedulable_masters,
         } | to_json
       }}'
 
@@ -36,6 +36,11 @@
   set_fact:
     create_body_extras: "{{ create_body_extras | combine({'network_type': network_type }) }}"
   when: network_type is defined
+
+- name: Add Operators
+  set_fact:
+    create_body_extras: "{{ create_body_extras | combine({'olm_operators': [{'name': 'lso'}, {'name': 'ocs'}]}) }}"
+  when: (install_odf | default(false)) | bool
 
 - debug: # noqa unnamed-task
     msg: "{{ create_body | from_json | combine(create_body_extras) | to_nice_json }}"
