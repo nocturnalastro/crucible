@@ -58,3 +58,19 @@
   ansible.builtin.shell:
     cmd: "ansible-vault encrypt --vault-password-file {{ kubeadmin_vault_password_file_path }} {{ dest_dir }}/{{ kubeadmin_vault_name }}"
   when: (kubeadmin_vault_password_file_path is defined) and (kubeadmin_vault_password_file_path is file)
+
+- name: Process node labels
+  ansible.builtin.gset_fact:
+    node_labels: "{{ node_labels |  combine({item: hostvars[item]['openshift_labels'] }) }}"
+  when:
+    - hostvars[item]['openshift_labels'] is defined
+    - (hostvars[item]['openshift_labels'] | length) > 0
+  loop: "{{ (groups['masters'] + groups['workers'] | default([])) | list }}"
+
+- name: Label nodes
+  kubernetes.core.k8s:
+    definition: "{{ lookup('template', 'label_nodes.yml.j2') }}"
+    apply: true
+  environment:
+    KUBECONFIG: "{{ kubeconfig_path }}"
+  when: (node_labels | length) > 0
