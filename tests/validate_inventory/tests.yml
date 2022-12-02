@@ -4,14 +4,15 @@
   gather_facts: false
   vars:
     test_suites:
-      - cluster.yml
-      - secrets.yml
-      - prereqs.yml
-      - network.yml
-      - vms.yml
-      - ntp.yml
-      - day2.yml
-      - vendor.yml
+      # - cluster.yml
+      # - secrets.yml
+      # - prereqs.yml
+      # - network.yml
+      # - vms.yml
+      # - ntp.yml
+      # - day2.yml
+      # - vendor.yml
+      - mirror_cert.yml
   tasks:
     - name: Run Inventory Validation test suites
       include_role:

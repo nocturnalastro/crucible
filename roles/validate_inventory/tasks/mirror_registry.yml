@@ -1,0 +1,37 @@
+- debug:
+    msg: "{{ use_local_mirror_registry }}"
+    verbosity: 1
+
+- debug:
+    msg: "{{ not ((setup_registry_service | default(False)) | bool) }}"
+    verbosity: 1
+
+- debug:
+    msg: "{{ ((use_local_mirror_registry | default(False)) | bool) and (not ((setup_registry_service | default(False)) | bool)) }}"
+    verbosity: 1
+
+- name: Check mirror cert exists if needed
+  when:
+    - (use_local_mirror_registry | default(False)) | bool
+    # Note this check isn't need if setup_registry_service
+    # is true as the cert will be generated
+    - not ((setup_registry_service | default(False)) | bool)
+  block:
+    - name: Check for mirror cert
+      ansible.builtin.assert:
+        that:
+          - "{{ local_mirror_certificate_path is defined  }}"
+        quiet: true
+        fail_msg: "local_mirror_certificate_path is not defined"
+
+    - name: Check for local cert path
+      stat:
+        path: "{{ local_mirror_certificate_path }}"
+      register: mirror_certificate_check
+
+    - name: Check for mirror cert
+      ansible.builtin.assert:
+        that:
+          - "{{ mirror_certificate_check.stat.exists | bool }}"
+        quiet: true
+        fail_msg: "Certificate is missing at {{ local_mirror_certificate_path }}"

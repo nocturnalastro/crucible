@@ -1,0 +1,35 @@
+tags: validate_mirror_registry
+
+template_file: test_mirror_registry_cert.yml.j2
+
+tests:
+  - test_name: valid_cert_not_need_no_registry_need
+    expected: 0
+    template:
+      use_local_mirror_registry: False
+      setup_registry_service: False
+
+  - test_name: valid_cert_setup_registry
+    expected: 0
+    template:
+      setup_registry_service: True
+
+  - test_name: valid_cert_exists
+    expected: 0
+    template:
+      local_mirror_certificate_path: "{{ playbook_dir }}/suites/files/mirror_cert/cert.txt"
+      use_local_mirror_registry: True
+      setup_registry_service: False
+
+  - test_name: invalid_cert_doesnt_exist
+    expected: 2
+    template:
+      local_mirror_certificate_path: files/does_not_exist.txt
+      use_local_mirror_registry: True
+      setup_registry_service: False
+
+  - test_name: invalid_cert_path_not_defined
+    expected: 2
+    template:
+      use_local_mirror_registry: True
+      setup_registry_service: False

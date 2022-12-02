@@ -1,0 +1,25 @@
+all:
+  vars:
+    setup_registry_service: {{ item.template.setup_registry_service }}
+    use_local_mirror_registry: {{ item.template.use_local_mirror_registry | default(item.template.setup_registry_service) }}
+    {% if item.template.local_mirror_certificate_path is defined %}
+    local_mirror_certificate_path: {{ item.template.local_mirror_certificate_path }}
+    {% endif %}
+  children:
+    bastions:
+      hosts:
+        bastion:
+          ansible_host: localhost
+    services:
+      vars:
+        ansible_host: localhost
+      hosts:
+        assisted_installer:
+        ntp_host:
+        dns_host:
+        registry_host:
+          disconnected_registry_user: "registry_user_secret"
+          disconnected_registry_password: "registry_user_password"
+    nodes:
+      vars:
+      children:

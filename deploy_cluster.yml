@@ -2,6 +2,11 @@
 - import_playbook: playbooks/generate_ssh_key_pair.yml
   when: generate_ssh_keys | default(True) == True
 
+- import_playbook: playbooks/add_mirror_secret_to_pull_secret.yml
+  when:
+    - (use_local_mirror_registry | default(False)) | bool
+    - not ((setup_registry_service | default(False)) | bool)
+
 - import_playbook: playbooks/create_cluster.yml
 
 - import_playbook: playbooks/generate_discovery_iso.yml

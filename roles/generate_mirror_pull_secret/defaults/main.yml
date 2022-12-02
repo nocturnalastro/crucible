@@ -1,0 +1,16 @@
+pull_secret_file_name: pull-secret.txt
+registry_fqdn: "{{ hostvars['registry_host']['registry_fqdn'] | default(hostvars['registry_host']['ansible_fqdn']) }}"
+registry_port: "{{ hostvars['registry_host']['registry_port'] }}"
+
+disconnected_registry_user: "{{ hostvars['registry_host']['disconnected_registry_user'] }}"
+disconnected_registry_password: "{{ hostvars['registry_host']['disconnected_registry_password'] }}"
+
+registry_email_user: "{{ ansible_env.USER }}"
+registry_email: "{{ registry_email_user }}@{{ registry_fqdn }}"
+local_registry: "{{ registry_fqdn }}:{{ registry_port }}"
+
+use_local_mirror_registry: False
+setup_registry_service: False
+config_file_path: /tmp/wip/config
+file_owner: "{{ ansible_env.USER }}"
+file_group: "{{ file_owner }}"
