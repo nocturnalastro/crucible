@@ -1,0 +1,8 @@
+---
+- import_playbook: playbooks/generate_manifests.yml
+- import_playbook: playbooks/generate_agent_iso.yml
+- import_playbook: playbooks/boot_iso.yml
+  vars:
+    discovery_iso_name: "{{ cluster_name }}/agent.iso"
+
+- import_playbook: playbooks/monitor_billi.yml

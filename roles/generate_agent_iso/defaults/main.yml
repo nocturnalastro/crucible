@@ -1,0 +1,7 @@
+generated_dir: "{{ repo_root_path }}/generated"
+cluster_manifest_parent_dir: "{{ generated_dir}}/{{ cluster_name }}"
+download_agent_dest_file: "{{ cluster_name }}/agent.iso"
+download_dest_path: "{{ iso_download_dest_path | default('/opt/http_store/data') }}"
+billi_executable: "{{ repo_root_path }}/../billi"
+config_file_path: /tmp/wip/config
+version_filter: "[?(openshift_version == '{{ openshift_version }}') && (cpu_architecture == 'x86_64')]"

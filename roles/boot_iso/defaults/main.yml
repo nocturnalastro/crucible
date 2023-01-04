@@ -1,2 +1,3 @@
 ---
-boot_iso_url: "{{ discovery_iso_server }}/{{ discovery_iso_name }}"
+agent_iso_name: "{{ cluster_name }}/agent.iso"
+boot_iso_url: "{{ discovery_iso_server }}/{{ agent_iso_name }}"

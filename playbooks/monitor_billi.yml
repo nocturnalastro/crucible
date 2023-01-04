@@ -1,0 +1,5 @@
+- name: Monitor install process of billi
+  hosts: bastion
+  gather_facts: False
+  roles:
+    - monitor_billi

@@ -1,0 +1,26 @@
+mirror_registry_url: https://developers.redhat.com/content-gateway/rest/mirror/pub/openshift-v4/clients/mirror-registry/latest/mirror-registry.tar.gz
+
+downloads_path: /tmp/wip/
+
+mirror_registry_tar_name: mirror-registry.tar.gz
+mirror_registry_tar_path: "{{ downloads_path }}/{{ mirror_registry_tar_name }}"
+
+mirror_registry_binary_name: mirror-registry
+mirror_registry_binary:  "{{ downloads_path }}/{{ mirror_registry_binary_name }}"
+
+mirror_registry_binary_dest: "{{ downloads_path }}/{{ mirror_registry_binary_name }}"
+
+file_owner: "{{ ansible_env.USER }}"
+file_group: "{{ file_owner }}"
+
+registry_fqdn: "{{ ansible_fqdn }}"
+registry_name: "{{ cert_file_prefix | default('registry_2') }}"
+registry_dir: "/opt/{{ registry_name }}"
+force: true
+
+cert_path: "{{ registry_dir }}/quay-rootCA/rootCA.pem"
+cert_targets:
+  - bastion
+  - assisted_installer
+pull_secret_file_name: pull-secret.txt
+local_registry: "{{ registry_fqdn }}:8443"

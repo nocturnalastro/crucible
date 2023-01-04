@@ -1,0 +1,19 @@
+#jinja2:trim_blocks: True, lstrip_blocks: True
+apiVersion: v1alpha1
+kind: AgentConfig
+{% if billi_bootstrap_node is defined %}
+rendezvousIP: {{ hostvars[billi_bootstrap_node]['ansible_host'] }}
+{% endif %}
+hosts:
+{% for hostname, network_config in static_network_config.items() %}
+  - role: {{ hostvars[hostname]['role'] }}
+    hostname: {{ hostname }}
+    interfaces:
+      - name: {{ network_config.mac_interface_map[0].logical_nic_name }}
+        macAddress: {{ network_config.mac_interface_map[0].mac_address }}
+    {# networkConfig: {{ network_config.network_yaml | to_nice_json }} #}
+  {% if hostvars[hostname]['installation_disk_path'] is defined %}
+    rootDeviceHints:
+      deviceName: {{ hostvars[hostname]['installation_disk_path'] }}
+  {% endif %}
+{% endfor %}

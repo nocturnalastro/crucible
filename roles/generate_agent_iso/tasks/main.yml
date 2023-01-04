@@ -1,0 +1,70 @@
+- name: Create podman auth dir
+  file:
+    path: "{{ ansible_env.HOME }}/.docker"
+    state: directory
+    mode: 0755
+    recurse: true
+
+- name: Copy pull_secret file.
+  copy:
+    content: "{{ pull_secret }}"
+    dest: "{{ ansible_env.HOME }}/.docker/config.json"
+    mode: 0644
+
+- name: Login and generate iso
+  environment:
+    XDG_RUNTIME_DIR: "{{ config_file_path }}"
+    REGISTRY_AUTH_FILE: "{{ config_file_path }}/containers/auth.json"
+  block:
+    - name: Create temp_dir to store nmstateconfig
+      file:
+        path: "{{ config_file_path }}/nmstate_store"
+        state: directory
+        mode: 0755
+        recurse: true
+
+    - name: Copy configs to nmstate_store
+      copy:
+        src: "{{ cluster_manifest_parent_dir }}/cluster-manifests"
+        dest: "{{ config_file_path }}/nmstate_store"
+        mode: 0755
+        remote_src: true
+
+    - name: Generate cluster-manifests
+      ansible.builtin.shell:
+        cmd: "{{ billi_executable }} --log-level=debug agent create cluster-manifests"
+        chdir: "{{ cluster_manifest_parent_dir }}"
+      ignore_errors: true
+
+    - name: Copy configs back to cluster-manifests
+      copy:
+        src: "{{ config_file_path }}/nmstate_store/cluster-manifests/{{ item }}"
+        dest: "{{ cluster_manifest_parent_dir }}/cluster-manifests/{{ item }}"
+        mode: 0755
+        remote_src: true
+      loop:
+        - infraenv.yaml
+        - nmstateconfig.yaml
+
+    - name: Generate ISO with agent-config
+      ansible.builtin.shell:
+        cmd: "{{ billi_executable }} --log-level=debug agent create image"
+        chdir: "{{ cluster_manifest_parent_dir }}"
+      # environment:
+      #   OPENSHIFT_INSTALL_RELEASE_IMAGE_OVERRIDE: "{{ (release_images_defaults |json_query(version_filter))[0].url }}"
+
+- name: Put discovery iso in http store
+  block:
+    - name: Create discovery directory
+      file:
+        path: "{{ download_dest_path + '/' + download_agent_dest_file | dirname }}"
+        recurse: yes
+        state: directory
+
+    - name: Copy agent iso to discovery directory
+      ansible.builtin.copy:
+        src: "{{ cluster_manifest_parent_dir }}/agent.iso"
+        dest: "{{ download_dest_path + '/' + download_agent_dest_file }}"
+        mode: 0644
+  delegate_to: http_store
+  become: true

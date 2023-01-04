@@ -1,0 +1,38 @@
+- name: Create download dirs
+  ansible.builtin.file:
+    path: "{{ downloads_path }}"
+    owner: "{{ file_owner }}"
+    group: "{{ file_group }}"
+    mode: 0755
+    recurse: true
+    state: directory
+
+- name: Check if mirror_registry tarball has been previously downloaded
+  stat:
+    path: "{{ mirror_registry_tar_path }}"
+  register: downloaded_mirror_registry_tar
+
+- name: Fetch mirror_registry
+  get_url:
+    url: "{{ mirror_registry_url }}"
+    dest: "{{ mirror_registry_tar_path }}"
+    force: "{{ force }}"
+    mode: 0664
+  when:
+    - not downloaded_mirror_registry_tar.stat.exists
+
+- name: Check if mirror_registry binary has been extracted
+  stat:
+    path: "{{ mirror_registry_binary }}"
+  register: extracted_mirror_registry
+
+- name: Extract mirror_registry binary
+  unarchive:
+    src: "{{ mirror_registry_tar_path }}"
+    dest: "{{ downloads_path }}"
+    owner: "{{ file_owner }}"
+    group: "{{ file_group }}"
+    remote_src: yes
+  become: true
+  when:
+    - not extracted_mirror_registry.stat.exists

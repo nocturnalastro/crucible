@@ -3,7 +3,7 @@
 
 - name: "Wait for up to 60 minutes for node {{ host_name }} to reboot"
   uri:
-    url: "{{ URL_ASSISTED_INSTALLER_INFRA_ENV }}/hosts/{{ host_id }}"
+    url: "{{ ASSISTED_INSTALLER_URL }}/{{ current_host.href }}"
     method: GET
     status_code: [200, 201]
     return_content: True
@@ -13,10 +13,9 @@
     var: host
     verbosity: 1
 
-
 - name: "Wait for up to 60 minutes for node {{ host_name }} to reboot"
   uri:
-    url: "{{ URL_ASSISTED_INSTALLER_INFRA_ENV }}/hosts/{{ host_id }}"
+    url: "{{ ASSISTED_INSTALLER_URL }}/{{ current_host.href }}"
     method: GET
     status_code: [200, 201]
     return_content: True

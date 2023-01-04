@@ -12,6 +12,8 @@ get_all_release_versions: false
 images_to_get_hash_for: "{{ assisted_installer_images | combine(processed_release_images | default({})) }}"
 
 destination_hosts:
+  - bastion
+  - localhost
   - registry_host
   - assisted_installer
 
@@ -50,8 +52,15 @@ os_images:
     url: https://mirror.openshift.com/pub/openshift-v4/aarch64/dependencies/rhcos/4.10/4.10.16/rhcos-4.10.16-aarch64-live.aarch64.iso
     rootfs_url: https://mirror.openshift.com/pub/openshift-v4/aarch64/dependencies/rhcos/4.10/4.10.16/rhcos-4.10.16-aarch64-live-rootfs.aarch64.img
     version: 410.84.202205191234-0
+  - openshift_version: "4.11"
+    cpu_architecture: "x86_64"
+    url: https://mirror.openshift.com/pub/openshift-v4/dependencies/rhcos/4.11/4.11.0/rhcos-4.11.0-x86_64-live.x86_64.iso
+    rootfs_url: https://mirror.openshift.com/pub/openshift-v4/dependencies/rhcos/4.11/4.11.0/rhcos-4.11.0-x86_64-live-rootfs.x86_64.img
+    version: "411.86.202208031059-0"
 
-release_images:
+mirror_registry: "{{ hostvars['registry_host']['registry_fqdn'] }}:{{ hostvars['registry_host']['registry_port'] }}"
+
+release_images_defaults:
   - openshift_version: '4.6'
     cpu_architecture: x86_64
     url: quay.io/openshift-release-dev/ocp-release:4.6.16-x86_64
@@ -77,6 +86,15 @@ release_images:
     cpu_architecture: arm64
     url: quay.io/openshift-release-dev/ocp-release:4.10.16-aarch64
     version: 4.10.16
+  - openshift_version: '4.11'
+    cpu_architecture: x86_64
+    # url: registry.ci.openshift.org/origin/release:4.11
+    # url: "{{ mirror_registry }}/origin/openshift/release-images:4.11"
+    # url: quay.io/openshift-release-dev/ocp-release:4.11.0-x86_64
+    url: quay.io/openshift-release-dev/ocp-release@sha256:300bce8246cf880e792e106607925de0a404484637627edf5f517375517d54a4
+    version: 4.11.0
+
+release_images: "{{ release_images_defaults }}"
 
 assisted_service_image_repo_url: quay.io/edge-infrastructure
 
@@ -93,4 +111,3 @@ assisted_installer_images:
     url: "{{ assisted_service_image_repo_url }}/assisted-installer-ui:{{ assisted_service_gui_tag }}"
   image_service:
     url: "{{ assisted_service_image_repo_url }}/assisted-image-service:{{ assisted_service_image_service_tag }}"
-  
