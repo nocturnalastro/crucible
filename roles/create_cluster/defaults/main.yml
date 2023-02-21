@@ -22,6 +22,11 @@ http_proxy: ""
 https_proxy: ""
 no_proxy: ""
 
+api_vips:
+  - "{{ api_vip }}"
+ingress_vips:
+  - "{{ ingress_vip }}"
+
 single_node_openshift_enabled: "{{ is_valid_single_node_openshift_config | default(false) }}"
 
 # Accepted values for "High Availability Mode"
