@@ -1,4 +1,38 @@
 ---
+- name: Processs Required dns records
+  block:
+    - name: Set Ingress and API VIPs when cluster is SNO
+      vars:
+        sno_hostname: "{{ groups['masters'][0] }}"
+      ansible.builtin.set_fact:
+        api_vip: "{{ hostname[sno_hostname].ansible_host }}"
+        ingress_vip: "{{ hostname[sno_hostname].ansible_host }}"
+      when: single_node_openshift_enabled | bool
+
+    - name: Get Required API DNS records
+      ansible.builtin.set_fact: "{{ (dns_records | default({})) | combine(
+          {
+            'api': {
+              'address': 'api.' + domain,
+              'ip': api_vip,
+            },
+            'api_int': {
+              'address': 'api-int.' + domain,
+              'ip': api_vip,
+            }
+          }
+        ) }}"
+
+    - name: Get Required WILDCARD DNS records
+      ansible.builtin.set_fact: "{{ (dns_records | default({})) | combine(
+          {
+            'apps': {
+              'address': '.apps.' + domain,
+              'ip': ingress_vip,
+            }
+          }
+        ) }}"
+
 - name: Get node_records for nodes
   set_fact:
     node_dns_records: "{{ (node_dns_records | default({})) | combine(

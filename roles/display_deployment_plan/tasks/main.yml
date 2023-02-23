@@ -5,6 +5,14 @@
   when: hostvars[item]['vendor'] | lower == 'pxe'
   loop: "{{ groups['nodes'] }}"
 
+- name: Set Ingress and API VIPs when cluster is SNO
+  vars:
+    sno_hostname: "{{ groups['masters'][0] }}"
+  ansible.builtin.set_fact:
+    api_vip: "{{ hostname[sno_hostname].ansible_host }}"
+    ingress_vip: "{{ hostname[sno_hostname].ansible_host }}"
+  when: single_node_openshift_enabled | bool
+
 - name: Display deployment plan if interactive prompts are allowed
   when: not ((skip_interactive_prompts | default(false)) | bool)
   block:

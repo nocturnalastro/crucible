@@ -1,5 +1,11 @@
 ---
-# tasks file for create_cluster
+- name: Set Ingress and API VIPs when cluster is SNO
+  vars:
+    sno_hostname: "{{ groups['masters'][0] }}"
+  ansible.builtin.set_fact:
+    api_vip: "{{ hostname[sno_hostname].ansible_host }}"
+    ingress_vip: "{{ hostname[sno_hostname].ansible_host }}"
+  when: single_node_openshift_enabled | bool
 
 - name: Set body for create cluster
   set_fact:

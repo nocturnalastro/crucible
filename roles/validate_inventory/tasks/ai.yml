@@ -16,7 +16,7 @@
     that:
       - hostvars['assisted_installer'][item] | ansible.utils.ipaddr(hostvars['assisted_installer']['machine_network_cidr']) | ansible.utils.ipaddr('bool')
     fail_msg: "{{ item }} is not within the machine network!"
-  when: vip_dhcp_allocation == false
+  when: vip_dhcp_allocation == false and not single_node_openshift_enabled
   loop:
     - api_vip
     - ingress_vip

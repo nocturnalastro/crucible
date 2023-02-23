@@ -12,15 +12,24 @@
     fail_msg: "There must be at least three masters defined. To deploy SNO, define one master and no workers."
   when: not single_node_openshift_enabled
 
-- name: Assert API and Ingress VIPs are set correctly (SNO)
-  assert:
-    that:
-      - api_vip == hostvars[sno_hostname]['ansible_host']
-      - ingress_vip == hostvars[sno_hostname]['ansible_host']
-    fail_msg: "For SNO deployments, API and Ingress VIPs need to match the IP address (ansible_host) of the master node."
+- nam e: Assert API and Ingress VIPs are set correctly (SNO)
   vars:
     sno_hostname: "{{ groups['masters'][0] }}"
   when: single_node_openshift_enabled
+  block:
+    - name: Assert API VIP is set correctly (SNO)
+      assert:
+        that:
+          - api_vip == hostvars[sno_hostname]['ansible_host']
+        fail_msg: "For SNO deployments, the API VIP must to match the IP address (ansible_host) of the master node."
+      when: api_vip is defined
+
+    - name: Ingress VIP is set correctly (SNO)
+      assert:
+        that:
+          - ingress_vip == hostvars[sno_hostname]['ansible_host']
+        fail_msg: "For SNO deployments, the Ingress VIP must to match the IP address (ansible_host) of the master node."
+      when: ingress_vip is defined
 
 - name: Assert valid worker configuration
   assert:
