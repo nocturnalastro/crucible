@@ -23,19 +23,50 @@
           "pull_secret": (pull_secret | to_json),
           "ssh_public_key": ssh_public_key,
           "vip_dhcp_allocation": (vip_dhcp_allocation | lower | bool),
-          "api_vip": api_vip,
           "http_proxy": http_proxy,
           "https_proxy": https_proxy,
           "no_proxy": no_proxy,
           "additional_ntp_source": ntp_server,
-          "schedulable_masters": schedulable_masters, 
         } | to_json
       }}'
+
+- name: Assign api_vip and ingress_vip of not doing SNO
+  set_fact:
+    create_body_extras: "{{ create_body_extras | combine({
+        'api_vip': api_vip,
+        'ingress_vip': ingress_vip,
+      }) }}"
+  when: not (single_node_openshift_enabled | bool)
+
+- name: Assign schedulable_masters if cluster has workers
+  set_fact:
+    create_body_extras: "{{ create_body_extras | combine({'schedulable_masters': schedulable_masters }) }}"
+  when: has_workers | bool
 
 - name: Add network_type to extras for create_body
   set_fact:
     create_body_extras: "{{ create_body_extras | combine({'network_type': network_type }) }}"
   when: network_type is defined
+
+- name: Add LSO to olm_operators
+  set_fact:
+    olm_operators: "{{ (olm_operators | default([])) + [{'name': 'lso'}] }}"
+  when: ((install_odf | default(false)) | bool) or ((install_lso | default(false)) | bool)
+
+- name: Add OCS to olm_operators
+  set_fact:
+    olm_operators: "{{ (olm_operators | default([])) + [{'name': 'ocs'}] }}"
+  when: ((install_odf | default(false)) | bool)
+
+- name: Add CNV to olm_operators
+  set_fact:
+    olm_operators: "{{ (olm_operators | default([])) + [{'name': 'cnv'}] }}"
+  when: ((install_cnv | default(false)) | bool)
+
+- name: Add Operators
+  set_fact:
+    create_body_extras: "{{ create_body_extras | combine({'olm_operators': olm_operators}) }}"
+  when: olm_operators is defined
 
 - debug: # noqa unnamed-task
     msg: "{{ create_body | from_json | combine(create_body_extras) | to_nice_json }}"
