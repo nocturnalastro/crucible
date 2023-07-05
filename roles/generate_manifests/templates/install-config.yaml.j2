@@ -58,3 +58,11 @@ proxy:
 {% if (use_local_mirror_registry | bool) %}
 {{ lookup('template', 'registry-config.j2') }}
 {% endif %}
+{% if cluster_capabilities is defined and openshift_full_version is version('4.12.0', '>=') %}
+capabilities:
+  baselineCapabilitySet: "{{ cluster_capabilities.baselineCapabilitySet | default(None) }}"
+  additionalEnabledCapabilities:
+  {% for additional in (cluster_capabilities.additionalEnabledCapabilities | default([])) %}
+    - {{ additional }}
+  {% endfor %}
+{% endif%}

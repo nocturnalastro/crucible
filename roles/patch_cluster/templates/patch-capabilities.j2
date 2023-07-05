@@ -1,0 +1,6 @@
+capabilities:
+  baselineCapabilitySet: "{{ cluster_capabilities.baselineCapabilitySet | default(None) }}"
+  additionalEnabledCapabilities:
+  {% for additional in (cluster_capabilities.additionalEnabledCapabilities | default([]))%}
+    - {{ additional }}
+  {% endfor %}

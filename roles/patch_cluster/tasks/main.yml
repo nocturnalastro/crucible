@@ -28,10 +28,12 @@
     patch_install_config: "{{ lookup('template', 'patch-network-type.j2') | from_yaml | combine(patch_install_config | default({}))  }}"
   when: network_type is defined
 
-- debug: # noqa unnamed-task
-    var: patch_install_config
-    verbosity: 1
-  when: patch_install_config is defined
+- name: Add network_type to patch_install_config
+  set_fact:
+    patch_install_config: "{{ lookup('template', 'patch-capabilities.j2') | from_yaml | combine(patch_install_config | default({}))  }}"
+  when:
+    - cluster_capabilities is defined
+    - openshift_full_version is version('4.12.0', '>=')
 
 - name: Patch install config
   uri:
