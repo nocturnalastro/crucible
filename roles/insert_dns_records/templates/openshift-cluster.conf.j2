@@ -27,6 +27,7 @@ dhcp-option= tag:{{ cluster_name }},option:ntp-server,{{ ntp_server }}
 # Wildcard for apps and other api domains
 {% for item in dns_records.values() %}
 address=/{{ item.address }}/{{ item.ip }}
+ptr-record={{ item.ip | ansible.utils.ipaddr("revdns") }},{{ item.address }}
 {% endfor %}
 
 # Node addresses
@@ -36,8 +37,7 @@ address=/{{ item.address }}/{{ item.ip }}
 dhcp-host={{item.mac}},{{ item.ip }},{{ item.address }}, set:{{ cluster_name }}
 {% endif %}
 address=/{{ item.address }}/{{ item.ip }}
-ptr-record={{ item.ip.split('.')[::-1] | join('.')  }}.in-addr.arpa,{{ item.address }}
-
+ptr-record={{ item.ip | ansible.utils.ipaddr("revdns") }},{{ item.address }}
 {% endfor %}
 
 {% if bmc_dns_records is defined %}
@@ -45,8 +45,7 @@ ptr-record={{ item.ip.split('.')[::-1] | join('.')  }}.in-addr.arpa,{{ item.addr
 {% for item in bmc_dns_records.values() %}
 # {{ item.name }}
 address=/{{ item.address }}/{{ item.ip }}
-ptr-record={{ item.ip.split('.')[::-1] | join('.')  }}.in-addr.arpa,{{ item.address }}
-
+ptr-record={{ item.ip | ansible.utils.ipaddr("revdns") }},{{ item.address }}
 {% endfor %}
 
 {% endif %}
@@ -55,8 +54,7 @@ ptr-record={{ item.ip.split('.')[::-1] | join('.')  }}.in-addr.arpa,{{ item.addr
 {% for item in other_host_dns_records.values() %}
 # {{ item.name | join(', ') }}
 address=/{{ item.address }}/{{ item.ip }}
-ptr-record={{ item.ip.split('.')[::-1] | join('.')  }}.in-addr.arpa,{{ item.address }}
-
+ptr-record={{ item.ip | ansible.utils.ipaddr("revdns") }},{{ item.address }}
 {% endfor %}
 
 {% endif %}
@@ -67,8 +65,7 @@ ptr-record={{ item.ip.split('.')[::-1] | join('.')  }}.in-addr.arpa,{{ item.addr
 dhcp-host={{item.mac}},{{ item.ip }},{{ item.address }}, set:{{ cluster_name }}
 {% endif %}
 address=/{{ item.address }}/{{ item.ip }}
-ptr-record={{ item.ip.split('.')[::-1] | join('.')  }}.in-addr.arpa,{{ item.address }}
-
+ptr-record={{ item.ip | ansible.utils.ipaddr("revdns") }},{{ item.address }}
 {% endfor %}
 {% if use_pxe %}
 
