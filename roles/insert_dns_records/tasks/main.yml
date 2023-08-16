@@ -1,4 +1,30 @@
 ---
+- name: Build dns_records for vips
+  block:
+    - name: Build dns_records for api_vips
+      ansible.builtin.set_fact:
+        dns_records: "{{ combine(dns_records, {
+            'api_' + loop_index: {
+              'address': 'api.' + domain,
+              'ip': item,
+            },
+            'api_int_' + loop_index: {
+              'address': 'api-int.' + domain,
+              'ip': item,
+            }
+          })}}"
+      loop: "{{ api_vips }}"
+
+    - name: Build dns_records for ingress_vips
+      ansible.builtin.set_fact:
+        dns_records: "{{ combine(dns_records, {
+            'apps_' + loop_index: {
+              'address': '.apps.' + domain,
+              'ip': item,
+            }
+          })}}"
+      loop: "{{ ingress_vips }}"
+
 - name: Get node_records for nodes
   set_fact:
     node_dns_records: "{{ (node_dns_records | default({})) | combine(
