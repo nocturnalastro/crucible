@@ -13,4 +13,4 @@
           'expected': expected_answers[item.key],
         }}
       ) }}"
-  when: expected_answers[item.key] not in res.stdout
+  when: (expected_answers[item.key] | difference(res.stdout.split())) > 0

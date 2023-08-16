@@ -35,3 +35,6 @@ has_workers: "{{ (groups['workers'] | default([])) | length > 0 }} "
 
 create_body_extras: {}
 cluster_id_filename: "cluster.txt" # This default is for backwards compatability
+
+api_vips: "{% if extra_api_vip is defined %}{{ [api_vip, extra_api_vip] }}{% else %}{{ [api_vip] }}{% endif %}"
+ingress_vips: "{% if extra_ingress_vip is defined %}{{ [ingress_vip, extra_ingress_vip] }}{% else %}{{ [ingress_vip] }}{% endif %}"

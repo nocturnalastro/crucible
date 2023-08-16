@@ -45,8 +45,8 @@
     set_fact:
       cluster_config_patch_request_body: {
         "vip_dhcp_allocation": "{{ vip_dhcp_allocation | bool }}",
-        "ingress_vip": "{{ ingress_vip }}",
-        "api_vip": "{{ api_vip }}",
+        "ingress_vips": "{{ ingress_vips }}",
+        "api_vips": "{{ api_vips }}",
       }
     when: not single_node_openshift_enabled
 
@@ -210,4 +210,3 @@
   until: cluster.json.status in cluster_installation_states
   retries: 5
   delay: 60
-  

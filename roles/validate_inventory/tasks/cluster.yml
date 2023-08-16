@@ -15,8 +15,8 @@
 - name: Assert API and Ingress VIPs are set correctly (SNO)
   assert:
     that:
-      - api_vip == hostvars[sno_hostname]['ansible_host']
-      - ingress_vip == hostvars[sno_hostname]['ansible_host']
+      - hostvars[sno_hostname]['ansible_host'] in api_vips
+      - hostvars[sno_hostname]['ansible_host'] in ingress_vips
     fail_msg: "For SNO deployments, API and Ingress VIPs need to match the IP address (ansible_host) of the master node."
   vars:
     sno_hostname: "{{ groups['masters'][0] }}"
